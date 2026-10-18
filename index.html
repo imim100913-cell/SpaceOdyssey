@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>🚀 Space Odyssey: Earth to Moon — WebGL 軽量版</title>
+  <title>🚀 Space Odyssey: Earth to Moon — AI Photorealistic WebGL Edition</title>
   <style>
     :root {
       --cyan: #38bdf8;
       --gold: #fbbf24;
       --emerald: #34d399;
-      --rose: #fb7185;
-      --bg-panel: rgba(6, 14, 28, 0.78);
+      --bg-panel: rgba(5, 11, 24, 0.72);
       --border-glow: rgba(56, 189, 248, 0.42);
     }
     * {
@@ -24,29 +23,39 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #02040a;
+      background: #010308;
       font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
-      color: #e2e8f0;
+      color: #f1f5f9;
     }
     #canvas-container {
       position: fixed;
       inset: 0;
       z-index: 1;
     }
-    /* Dynamic Cockpit Glass Overlay (Frost / Re-entry Plasma / Condensation) */
+    /* Stratosphere Frost & Re-entry Glow Layer */
     #glass-overlay {
       position: fixed;
       inset: 0;
       z-index: 2;
       pointer-events: none;
-      transition: opacity 0.3s ease;
       background:
-        radial-gradient(circle at 50% 50%, transparent 55%, rgba(180, 225, 255, var(--frost-alpha, 0)) 100%),
-        radial-gradient(circle at 50% 50%, transparent 60%, rgba(255, 95, 20, var(--plasma-alpha, 0)) 100%);
-      box-shadow: inset 0 0 80px rgba(140, 210, 255, var(--frost-alpha, 0));
+        radial-gradient(circle at 50% 42%, transparent 48%, rgba(165, 225, 255, var(--frost-alpha, 0)) 100%),
+        radial-gradient(circle at 50% 42%, transparent 55%, rgba(255, 110, 30, var(--plasma-alpha, 0)) 100%);
+      box-shadow: inset 0 0 90px rgba(140, 215, 255, var(--frost-alpha, 0));
     }
-    /* 2D Cockpit Frame Overlay for Interior Views */
-    #cockpit-overlay {
+    /* AI Photorealistic Cockpit Canvas Overlay */
+    #cockpit-canvas {
+      position: fixed;
+      inset: -2%;
+      width: 104%;
+      height: 104%;
+      z-index: 3;
+      pointer-events: none;
+      object-fit: cover;
+      transition: opacity 0.35s ease, transform 0.08s ease-out;
+    }
+    /* Secondary SVG Overlays for Observation / Cupola Modes */
+    #alt-frame-overlay {
       position: fixed;
       inset: 0;
       z-index: 3;
@@ -61,12 +70,11 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 14px 18px;
+      padding: 12px 16px;
     }
     .interactive {
       pointer-events: auto;
     }
-    /* Top Status Bar */
     .top-bar {
       display: flex;
       flex-wrap: wrap;
@@ -77,24 +85,23 @@
       border: 1px solid var(--border-glow);
       border-top: 2px solid var(--cyan);
       border-radius: 10px;
-      padding: 10px 16px;
-      backdrop-filter: blur(6px);
+      padding: 8px 14px;
+      backdrop-filter: blur(8px);
     }
     .brand-title {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14.5px;
       letter-spacing: 0.04em;
-      color: #f8fafc;
     }
     .badge {
       padding: 3px 9px;
       border-radius: 999px;
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
     .badge-cyan {
       background: rgba(56, 189, 248, 0.18);
@@ -114,25 +121,22 @@
     .top-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
     .btn {
-      background: rgba(15, 29, 52, 0.88);
+      background: rgba(12, 24, 46, 0.86);
       color: #e2e8f0;
       border: 1px solid rgba(56, 189, 248, 0.4);
       border-radius: 6px;
-      padding: 6px 11px;
-      font-size: 12px;
+      padding: 5px 10px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
     }
     .btn:hover {
-      background: rgba(56, 189, 248, 0.22);
+      background: rgba(56, 189, 248, 0.25);
       border-color: var(--cyan);
       transform: translateY(-1px);
     }
@@ -142,32 +146,33 @@
       color: var(--gold);
     }
     .btn-quality.active {
-      background: rgba(52, 211, 153, 0.25);
+      background: rgba(52, 211, 153, 0.24);
       border-color: var(--emerald);
       color: var(--emerald);
     }
     /* Scenic Tour Progress Bar */
     #tour-banner {
-      margin-top: 8px;
+      margin-top: 7px;
       background: var(--bg-panel);
       border: 1px solid rgba(251, 191, 36, 0.45);
       border-radius: 8px;
-      padding: 8px 14px;
+      padding: 7px 14px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
+      backdrop-filter: blur(6px);
     }
     .tour-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 600;
     }
     .progress-track {
       width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.1);
+      height: 5px;
+      background: rgba(255, 255, 255, 0.12);
       border-radius: 999px;
       overflow: hidden;
     }
@@ -177,22 +182,22 @@
       background: linear-gradient(90deg, var(--cyan), var(--gold));
       transition: width 0.15s linear;
     }
-    /* Middle Area: Crosshair + Controls Help Panel */
+    /* Center Area + Controls Help */
     .middle-area {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       flex: 1;
-      margin: 12px 0;
+      margin: 10px 0;
       position: relative;
     }
     #crosshair {
       position: absolute;
       left: 50%;
-      top: 50%;
+      top: 38%;
       transform: translate(-50%, -50%);
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 38px;
       border: 1.5px solid rgba(56, 189, 248, 0.35);
       border-radius: 50%;
       pointer-events: none;
@@ -203,7 +208,7 @@
       background: rgba(56, 189, 248, 0.55);
     }
     #crosshair::before {
-      width: 12px;
+      width: 10px;
       height: 1.5px;
       top: 50%;
       left: 50%;
@@ -211,21 +216,20 @@
     }
     #crosshair::after {
       width: 1.5px;
-      height: 12px;
+      height: 10px;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
     }
-    /* Right Help Overlay */
     #help-panel {
       margin-left: auto;
-      width: 335px;
+      width: 320px;
       background: var(--bg-panel);
       border: 1px solid var(--border-glow);
       border-top: 2px solid var(--gold);
       border-radius: 10px;
-      padding: 12px 14px;
-      backdrop-filter: blur(6px);
+      padding: 10px 13px;
+      backdrop-filter: blur(8px);
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
     #help-panel.hidden {
@@ -237,12 +241,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 9px;
-      padding-bottom: 6px;
+      margin-bottom: 7px;
+      padding-bottom: 5px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     .panel-title {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       color: var(--gold);
       letter-spacing: 0.04em;
@@ -250,23 +254,23 @@
     .key-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
     .key-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 12px;
+      gap: 9px;
+      font-size: 11.5px;
     }
     .key-cap {
-      min-width: 78px;
+      min-width: 74px;
       text-align: center;
-      padding: 3px 7px;
+      padding: 2px 6px;
       background: rgba(56, 189, 248, 0.16);
       border: 1px solid rgba(56, 189, 248, 0.45);
       border-radius: 5px;
       font-weight: 700;
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--cyan);
       font-family: Consolas, monospace;
     }
@@ -280,95 +284,76 @@
       border-color: rgba(52, 211, 153, 0.5);
       color: var(--emerald);
     }
-    /* Bottom Telemetry & Quick Action Dock */
+    /* Bottom Telemetry & Action Dock */
     .bottom-area {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
     }
     .telemetry-panel {
-      min-width: 330px;
+      min-width: 310px;
       background: var(--bg-panel);
       border: 1px solid var(--border-glow);
       border-top: 2px solid var(--cyan);
       border-radius: 10px;
-      padding: 12px 16px;
-      backdrop-filter: blur(6px);
+      padding: 10px 14px;
+      backdrop-filter: blur(8px);
     }
     .telemetry-grid {
       display: grid;
       grid-template-columns: auto 1fr;
-      gap: 5px 14px;
-      font-size: 13px;
+      gap: 4px 12px;
+      font-size: 12px;
       align-items: baseline;
     }
     .tel-label {
       color: #94a3b8;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 600;
     }
     .tel-value {
       font-family: Consolas, "Courier New", monospace;
-      font-size: 14.5px;
+      font-size: 13.5px;
       font-weight: 700;
       color: var(--cyan);
     }
     .tel-value.gold { color: var(--gold); }
     .tel-value.emerald { color: var(--emerald); }
-    /* Quick Action Buttons at Bottom Right */
     .quick-dock {
       display: flex;
-      gap: 8px;
+      gap: 7px;
       flex-wrap: wrap;
       background: var(--bg-panel);
       border: 1px solid var(--border-glow);
       border-radius: 10px;
-      padding: 10px 12px;
-      backdrop-filter: blur(6px);
+      padding: 8px 10px;
+      backdrop-filter: blur(8px);
     }
     @media (max-width: 768px) {
-      #help-panel { width: 270px; font-size: 11px; }
-      .telemetry-panel { min-width: 260px; }
+      #help-panel { width: 255px; }
+      .telemetry-panel { min-width: 240px; }
     }
   </style>
 </head>
 <body>
   <div id="canvas-container"></div>
   <div id="glass-overlay"></div>
-  <svg id="cockpit-overlay" viewBox="0 0 1920 1080" preserveAspectRatio="none">
-    <!-- Dynamic SVG Cockpit Frame updated per camera mode -->
-    <g id="svg-cockpit-pilot">
-      <!-- Canopy Struts -->
-      <path d="M0,0 L1920,0 L1920,75 L1580,52 L960,42 L340,52 L0,75 Z" fill="#070b14" stroke="#1e293b" stroke-width="2"/>
-      <path d="M0,0 L260,1080 L190,1080 L0,180 Z" fill="#080d18" stroke="#1e293b" stroke-width="2"/>
-      <path d="M1920,0 L1660,1080 L1730,1080 L1920,180 Z" fill="#080d18" stroke="#1e293b" stroke-width="2"/>
-      <line x1="960" y1="42" x2="960" y2="910" stroke="#0f172a" stroke-width="10" opacity="0.75"/>
-      <line x1="960" y1="42" x2="960" y2="910" stroke="#38bdf8" stroke-width="1" opacity="0.35"/>
-      <!-- Bottom Dashboard -->
-      <path d="M160,1080 L310,905 L1610,905 L1760,1080 Z" fill="#09101d" stroke="#1e293b" stroke-width="3"/>
-      <rect x="650" y="925" width="180" height="95" rx="6" fill="#04121e" stroke="#0284c7" stroke-width="1.5"/>
-      <rect x="870" y="920" width="180" height="105" rx="6" fill="#04121e" stroke="#34d399" stroke-width="1.5"/>
-      <rect x="1090" y="925" width="180" height="95" rx="6" fill="#04121e" stroke="#fbbf24" stroke-width="1.5"/>
-      <text x="740" y="955" fill="#38bdf8" font-family="Consolas" font-size="15" text-anchor="middle">NAV RADAR</text>
-      <text x="960" y="955" fill="#34d399" font-family="Consolas" font-size="15" text-anchor="middle">ATTITUDE ADI</text>
-      <text x="1180" y="955" fill="#fbbf24" font-family="Consolas" font-size="15" text-anchor="middle">THRUST / APOLLO</text>
-      <circle cx="740" cy="988" r="22" fill="none" stroke="#38bdf8" stroke-width="1.2" opacity="0.7"/>
-      <circle cx="740" cy="980" r="3" fill="#fbbf24"/>
-      <line x1="925" y1="985" x2="995" y2="985" stroke="#34d399" stroke-width="2"/>
-      <line x1="1125" y1="985" x2="1235" y2="985" stroke="#fbbf24" stroke-width="4"/>
-    </g>
+
+  <!-- AI Photorealistic Cockpit Canvas (Windows dynamically alpha-masked on load) -->
+  <canvas id="cockpit-canvas"></canvas>
+
+  <!-- Secondary SVG Frame for Observation & Cupola Dome Views -->
+  <svg id="alt-frame-overlay" viewBox="0 0 1920 1080" preserveAspectRatio="none">
     <g id="svg-cockpit-cabin" style="display:none">
-      <!-- Rounded Observation Window -->
-      <path d="M0,0 H1920 V1080 H0 Z M260,120 C260,120 180,540 260,960 H1660 C1740,540 1660,120 1660,120 Z" fill="#060a12" fill-rule="evenodd" stroke="#334155" stroke-width="4"/>
+      <path d="M0,0 H1920 V1080 H0 Z M190,90 C190,90 120,540 190,990 H1730 C1800,540 1730,90 1730,90 Z" fill="#050912" fill-rule="evenodd" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.45"/>
     </g>
     <g id="svg-cockpit-cupola" style="display:none">
-      <!-- Cupola Geodesic Struts -->
-      <circle cx="960" cy="540" r="680" fill="none" stroke="#0b1322" stroke-width="110"/>
-      <circle cx="960" cy="540" r="625" fill="none" stroke="#38bdf8" stroke-width="1.5" opacity="0.4"/>
-      <line x1="960" y1="0" x2="960" y2="1080" stroke="#0b1322" stroke-width="14"/>
-      <line x1="280" y1="540" x2="1640" y2="540" stroke="#0b1322" stroke-width="14"/>
+      <circle cx="960" cy="540" r="720" fill="none" stroke="#060b16" stroke-width="140"/>
+      <circle cx="960" cy="540" r="650" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.45"/>
+      <line x1="960" y1="0" x2="960" y2="1080" stroke="#060b16" stroke-width="16"/>
+      <line x1="240" y1="540" x2="1680" y2="540" stroke="#060b16" stroke-width="16"/>
     </g>
   </svg>
 
@@ -378,15 +363,15 @@
       <div class="top-bar interactive">
         <div class="brand-title">
           <span>🚀 SPACE ODYSSEY</span>
-          <span id="view-badge" class="badge badge-cyan">視点: 操縦席コックピット</span>
+          <span id="view-badge" class="badge badge-cyan">視点: AIフォトリアル操縦席</span>
           <span id="mode-badge" class="badge badge-gold">☕ 自動遊覧クルーズ中</span>
           <span id="fps-badge" class="badge badge-emerald">60 FPS</span>
         </div>
         <div class="top-controls">
-          <span style="font-size:11.5px;color:#94a3b8;margin-right:2px;">画質(低スペック対応):</span>
+          <span style="font-size:11px;color:#94a3b8;margin-right:2px;">画質(低負荷AIテクスチャ):</span>
           <button id="q-low" class="btn btn-quality" onclick="setQuality('low')">1: 超軽量</button>
           <button id="q-med" class="btn btn-quality active" onclick="setQuality('medium')">2: 標準</button>
-          <button id="q-high" class="btn btn-quality" onclick="setQuality('high')">3: 高画質</button>
+          <button id="q-high" class="btn btn-quality" onclick="setQuality('high')">3: 最高画質</button>
           <button class="btn" onclick="toggleHelp()">[H] 操作ヒント</button>
         </div>
       </div>
@@ -394,7 +379,7 @@
       <!-- Scenic Tour Progress Banner -->
       <div id="tour-banner">
         <div class="tour-row">
-          <span id="tour-phase-text" style="color:var(--gold);">☕ 自動遊覧ツアー: PHASE 1 — 地球発射台リフトオフ (LAUNCH)</span>
+          <span id="tour-phase-text" style="color:var(--gold);">☕ 自動遊覧ツアー: PHASE 1 — ケネディ宇宙基地リフトオフ (LAUNCH)</span>
           <span id="tour-progress-text" style="color:var(--cyan);">0% (C / F キーで手動操縦へ切替)</span>
         </div>
         <div class="progress-track">
@@ -409,19 +394,19 @@
       <div id="help-panel" class="interactive">
         <div class="panel-header">
           <span class="panel-title">🎮 操作ガイド (CONTROLS)</span>
-          <span style="font-size:11px;color:#94a3b8;">[H] 表示/非表示</span>
+          <span style="font-size:10.5px;color:#94a3b8;">[H] 表示/非表示</span>
         </div>
         <div class="key-list">
           <div class="key-row"><span class="key-cap gold">C / F</span><span>☕ 自動遊覧クルーズ ON / OFF</span></div>
-          <div class="key-row"><span class="key-cap emerald">V</span><span>🪟 窓・視点切替 (4視点: コックピット/展望/ドーム/機外)</span></div>
+          <div class="key-row"><span class="key-cap emerald">V</span><span>🪟 窓・視点切替 (AI操縦席/展望窓/ドーム/機外)</span></div>
           <div class="key-row"><span class="key-cap">Space / Ctrl</span><span>🚀 上昇 (大気圏突破) / 下降</span></div>
           <div class="key-row"><span class="key-cap">W / S</span><span>前後推進・ピッチ (前進 / 減速)</span></div>
           <div class="key-row"><span class="key-cap">A / D</span><span>左右旋回・ヨー</span></div>
           <div class="key-row"><span class="key-cap gold">Shift</span><span>⚡ スーパーブースト加速</span></div>
           <div class="key-row"><span class="key-cap">マウスドラッグ</span><span>👁️ 360° フリー視点見回し</span></div>
           <div class="key-row"><span class="key-cap gold">J</span><span>🌙 月軌道へ即時ワープ</span></div>
-          <div class="key-row"><span class="key-cap">R</span><span>🌍 地球発射台へリセット</span></div>
-          <div class="key-row"><span class="key-cap emerald">1 / 2 / 3</span><span>💻 軽量モード切替 (1:超軽量 2:標準 3:高画質)</span></div>
+          <div class="key-row"><span class="key-cap">R</span><span>🌍 宇宙基地発射台へリセット</span></div>
+          <div class="key-row"><span class="key-cap emerald">1 / 2 / 3</span><span>💻 画質モード (1:超軽量 2:標準 3:最高画質)</span></div>
         </div>
       </div>
     </div>
@@ -429,7 +414,7 @@
     <!-- Bottom Telemetry & Action Buttons -->
     <div class="bottom-area">
       <div class="telemetry-panel">
-        <div class="panel-header" style="margin-bottom:6px;">
+        <div class="panel-header" style="margin-bottom:5px;">
           <span class="panel-title" style="color:var(--cyan);">📊 フライト計器テレメトリ (TELEMETRY)</span>
         </div>
         <div class="telemetry-grid">
@@ -439,8 +424,8 @@
           <span id="tel-spd" class="tel-value">0 km/h (Mach 0.0)</span>
           <span class="tel-label">月までの距離 (TO MOON)</span>
           <span id="tel-moon" class="tel-value gold">384.0 km</span>
-          <span class="tel-label">大気圏環境 (ENVIRONMENT)</span>
-          <span id="tel-env" class="tel-value emerald">🌍 地上・対流圏 (青空と雲海)</span>
+          <span class="tel-label">環境ステータス (STATUS)</span>
+          <span id="tel-env" class="tel-value emerald">🌍 沿岸宇宙基地・対流圏</span>
         </div>
       </div>
 
@@ -453,38 +438,36 @@
     </div>
   </div>
 
-  <!-- Three.js r128 CDN (Lightweight, universal WebGL1/2 compatibility) -->
+  <!-- Three.js r128 CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     // ============================================================================
-    // SPACE ODYSSEY: EARTH TO MOON — WebGL Lightweight Engine
-    // Designed for smooth 60 FPS even on integrated GPUs (Intel UHD / MX150)
+    // SPACE ODYSSEY: AI PHOTOREALISTIC + ZERO-GPU-LOAD EDITION
+    // Uses AI-generated panoramic & planetary textures + custom lightweight GLSL
     // ============================================================================
 
     const WORLD = {
       MOON_ALTITUDE: 38400, // 384.0 km scaled (100 units = 1 km)
-      MOON_RADIUS: 2200,
-      EARTH_RADIUS: 18000,
-      ATMOS_TOP: 8000,      // 80 km Karman line
-      CLOUD_ALT: 1200,      // 12 km cloud layer
-      STRATO_START: 1500,   // 15 km frost layer start
-      STRATO_END: 5500      // 55 km frost layer end
+      MOON_RADIUS: 2800,
+      EARTH_RADIUS: 22000,
+      ATMOS_TOP: 7500,      // 75 km Karman transition
+      CLOUD_ALT: 1100,      // 11 km cloud deck
+      STRATO_START: 1500,
+      STRATO_END: 5200
     };
 
-    // State
     let qualityMode = 'medium';
     let isAutoCruise = true;
     let tourTime = 0;
-    const TOUR_DURATION = 95; // seconds for full scenic tour from launch to Moon & Earthrise
-    let cameraViewIndex = 3;  // Start in External Cinematic or Cockpit? Let's start in Cockpit (0) and auto-cycle in tour!
-    cameraViewIndex = 0;      // 0: Cockpit, 1: Side Cabin, 2: Cupola Dome, 3: External Cinematic
+    const TOUR_DURATION = 90;
+    let cameraViewIndex = 0; // 0: AI Cockpit, 1: Observation Window, 2: Cupola, 3: External Rocket
     let showHelp = true;
 
     // Flight state
-    const shipPos = new THREE.Vector3(0, 12, 0);
+    const shipPos = new THREE.Vector3(0, 18, 0);
     const shipVel = new THREE.Vector3();
     let shipYaw = 0;
-    let shipPitch = 0.08;
+    let shipPitch = 0.12;
     let shipRoll = 0;
     let currentSpeed = 0;
     let lookYawOffset = 0;
@@ -495,391 +478,381 @@
     let isDragging = false;
     let prevMouse = { x: 0, y: 0 };
 
-    // Three.js Core
+    // ============================================================================
+    // 1. AI COCKPIT OVERLAY ALPHA-MASKING (Zero 3D GPU cost, Photorealistic Interior)
+    // ============================================================================
+    const cockpitCanvas = document.getElementById('cockpit-canvas');
+    const cockpitImg = new Image();
+    cockpitImg.src = 'assets/cockpit.jpg';
+    cockpitImg.onload = () => {
+      const w = cockpitImg.width;
+      const h = cockpitImg.height;
+      cockpitCanvas.width = w;
+      cockpitCanvas.height = h;
+      const ctx = cockpitCanvas.getContext('2d');
+
+      // Step 1: Draw full AI cockpit interior
+      ctx.drawImage(cockpitImg, 0, 0, w, h);
+
+      // Step 2: Create feathered window cutout mask on offscreen canvas
+      const maskCanvas = document.createElement('canvas');
+      maskCanvas.width = w;
+      maskCanvas.height = h;
+      const mctx = maskCanvas.getContext('2d');
+      mctx.filter = 'blur(6px)';
+      mctx.fillStyle = 'rgba(0, 0, 0, 0.90)'; // 90% transparent glass (keeps 10% realistic HUD glass reflection!)
+
+      // Center Panoramic Windshield Polygon
+      mctx.beginPath();
+      mctx.moveTo(w * 0.10, h * 0.058);
+      mctx.lineTo(w * 0.372, h * 0.028);
+      mctx.lineTo(w * 0.412, h * 0.102);
+      mctx.lineTo(w * 0.588, h * 0.102);
+      mctx.lineTo(w * 0.628, h * 0.028);
+      mctx.lineTo(w * 0.90, h * 0.058);
+      mctx.lineTo(w * 0.642, h * 0.562);
+      mctx.lineTo(w * 0.358, h * 0.562);
+      mctx.closePath();
+      mctx.fill();
+
+      // Left Side Window Polygon
+      mctx.beginPath();
+      mctx.moveTo(0, h * 0.155);
+      mctx.lineTo(w * 0.286, h * 0.596);
+      mctx.lineTo(0, h * 0.658);
+      mctx.closePath();
+      mctx.fill();
+
+      // Right Side Window Polygon
+      mctx.beginPath();
+      mctx.moveTo(w, h * 0.155);
+      mctx.lineTo(w * 0.714, h * 0.596);
+      mctx.lineTo(w, h * 0.658);
+      mctx.closePath();
+      mctx.fill();
+
+      // Punch out the windows smoothly
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.drawImage(maskCanvas, 0, 0);
+      ctx.globalCompositeOperation = 'source-over';
+    };
+
+    // ============================================================================
+    // 2. THREE.JS SCENE & TEXTURE LOADER
+    // ============================================================================
     const container = document.getElementById('canvas-container');
     const renderer = new THREE.WebGLRenderer({
-      antialias: false, // Disabled by default for low-spec GPU speed; enabled in High mode
-      powerPreference: 'high-performance',
-      precision: 'mediump'
+      antialias: false,
+      powerPreference: 'high-performance'
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.35));
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x4a88d8);
-    scene.fog = new THREE.FogExp2(0x6ea8e5, 0.00018);
+    scene.background = new THREE.Color(0x3b82f6);
+    scene.fog = new THREE.FogExp2(0x7dd3fc, 0.00012);
 
-    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1.0, 250000);
+    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 1.0, 320000);
+    const texLoader = new THREE.TextureLoader();
 
-    // ============================================================================
-    // PROCEDURAL TEXTURES (Zero external image downloads = instant load & low VRAM)
-    // ============================================================================
-    function createEarthTexture() {
-      const c = document.createElement('canvas');
-      c.width = 512;
-      c.height = 256;
-      const ctx = c.getContext('2d');
-      // Deep ocean base
-      const grad = ctx.createLinearGradient(0, 0, 0, 256);
-      grad.addColorStop(0, '#0a2246');
-      grad.addColorStop(0.5, '#0c3b75');
-      grad.addColorStop(1, '#0a2246');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 512, 256);
-
-      // Continents & islands
-      const continents = [
-        [110, 95, 55, 42, '#2d5a27'], [135, 155, 38, 52, '#3a6b33'],
-        [255, 85, 48, 35, '#4b6e35'], [270, 140, 42, 48, '#7c6d3a'],
-        [355, 90, 75, 45, '#2f5e2c'], [395, 175, 35, 25, '#8c5832'],
-        [430, 95, 18, 32, '#295725'] // Japan archipelago region!
-      ];
-      continents.forEach(([x, y, rx, ry, col]) => {
-        ctx.fillStyle = col;
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0.2, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Polar caps
-      ctx.fillStyle = '#e8f4fc';
-      ctx.fillRect(0, 0, 512, 16);
-      ctx.fillRect(0, 240, 512, 16);
-
-      // Soft cloud swirls
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
-      for (let i = 0; i < 45; i++) {
-        const x = (i * 73) % 512;
-        const y = 20 + ((i * 41) % 216);
-        ctx.beginPath();
-        ctx.ellipse(x, y, 28 + (i % 20), 6 + (i % 5), (i % 3) * 0.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      return new THREE.CanvasTexture(c);
-    }
-
-    function createMoonTexture() {
-      const c = document.createElement('canvas');
-      c.width = 512;
-      c.height = 256;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#9ca3af';
-      ctx.fillRect(0, 0, 512, 256);
-
-      // Dark Lunar Maria (Seas)
-      const maria = [
-        [180, 105, 55, 40], [250, 95, 45, 35], [310, 125, 38, 30],
-        [140, 145, 35, 28], [220, 150, 30, 22]
-      ];
-      maria.forEach(([x, y, rx, ry]) => {
-        const g = ctx.createRadialGradient(x, y, 5, x, y, rx);
-        g.addColorStop(0, '#525866');
-        g.addColorStop(1, 'rgba(82, 88, 102, 0)');
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Craters with bright rims & dark floors
-      for (let i = 0; i < 120; i++) {
-        const x = (i * 97 + 31) % 512;
-        const y = 16 + ((i * 53 + 19) % 224);
-        const r = 3 + (i % 16);
-        ctx.strokeStyle = 'rgba(229, 231, 235, 0.55)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.fillStyle = 'rgba(55, 65, 81, 0.45)';
-        ctx.beginPath();
-        ctx.arc(x + 1, y + 1, r * 0.82, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      return new THREE.CanvasTexture(c);
-    }
-
-    function createMilkyWayTexture() {
-      const c = document.createElement('canvas');
-      c.width = 512;
-      c.height = 128;
-      const ctx = c.getContext('2d');
-      ctx.clearRect(0, 0, 512, 128);
-
-      const grad = ctx.createLinearGradient(0, 0, 0, 128);
-      grad.addColorStop(0, 'rgba(10, 20, 50, 0)');
-      grad.addColorStop(0.3, 'rgba(88, 130, 235, 0.22)');
-      grad.addColorStop(0.5, 'rgba(220, 200, 255, 0.48)');
-      grad.addColorStop(0.7, 'rgba(95, 145, 245, 0.22)');
-      grad.addColorStop(1, 'rgba(10, 20, 50, 0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 512, 128);
-
-      // Galactic core glow
-      const core = ctx.createRadialGradient(256, 64, 8, 256, 64, 150);
-      core.addColorStop(0, 'rgba(255, 235, 195, 0.65)');
-      core.addColorStop(0.5, 'rgba(155, 180, 255, 0.25)');
-      core.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = core;
-      ctx.fillRect(0, 0, 512, 128);
-
-      return new THREE.CanvasTexture(c);
-    }
-
-    // ============================================================================
-    // SCENE CONSTRUCTION
-    // ============================================================================
-    // 1. Lighting
-    const ambientLight = new THREE.AmbientLight(0x9ab8e8, 0.65);
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x8fa8d6, 0.55);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff6e5, 1.45);
-    sunLight.position.set(35000, 45000, -25000);
+    const sunLight = new THREE.DirectionalLight(0xfff8eb, 1.85);
+    sunLight.position.set(45000, 52000, -35000);
     scene.add(sunLight);
 
-    // Sun visual disc + corona
-    const sunDisc = new THREE.Mesh(
-      new THREE.SphereGeometry(1400, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0xfffbeb })
-    );
-    sunDisc.position.copy(sunLight.position);
-    scene.add(sunDisc);
+    // Sun visual corona sprite
+    const sunCanvas = document.createElement('canvas');
+    sunCanvas.width = 256;
+    sunCanvas.height = 256;
+    const sctx = sunCanvas.getContext('2d');
+    const sgrad = sctx.createRadialGradient(128, 128, 6, 128, 128, 128);
+    sgrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    sgrad.addColorStop(0.2, 'rgba(255, 240, 190, 0.85)');
+    sgrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.25)');
+    sgrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    sctx.fillStyle = sgrad;
+    sctx.fillRect(0, 0, 256, 256);
+    const sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(sunCanvas),
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    }));
+    sunSprite.scale.set(16000, 16000, 1);
+    sunSprite.position.copy(sunLight.position);
+    scene.add(sunSprite);
 
-    // 2. Earth Planet + Ground Launch Complex
-    const earthTex = createEarthTexture();
-    const earthMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(WORLD.EARTH_RADIUS, 36, 28),
-      new THREE.MeshLambertMaterial({ map: earthTex })
-    );
-    earthMesh.position.set(0, -WORLD.EARTH_RADIUS, 0);
-    scene.add(earthMesh);
-
-    // Atmosphere Blue Rim Halo around Earth
-    const earthAtmosMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(WORLD.EARTH_RADIUS * 1.025, 32, 24),
-      new THREE.MeshBasicMaterial({
-        color: 0x38bdf8,
-        transparent: true,
-        opacity: 0.22,
-        side: THREE.BackSide
-      })
-    );
-    earthAtmosMesh.position.copy(earthMesh.position);
-    scene.add(earthAtmosMesh);
-
-    // Local flat ground patch around launch pad
-    const groundPatch = new THREE.Mesh(
-      new THREE.CircleGeometry(3500, 32),
-      new THREE.MeshLambertMaterial({ color: 0x1e3320 })
-    );
-    groundPatch.rotation.x = -Math.PI / 2;
-    groundPatch.position.y = 0.2;
-    scene.add(groundPatch);
-
-    // Launch Complex Group
-    const launchPadGroup = new THREE.Group();
-    const padMat = new THREE.MeshLambertMaterial({ color: 0x64748b });
-    const towerMat = new THREE.MeshLambertMaterial({ color: 0x334155 });
-    const tankMat = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 });
-
-    const padBase = new THREE.Mesh(new THREE.BoxGeometry(36, 2, 36), padMat);
-    padBase.position.set(0, 1, 0);
-    launchPadGroup.add(padBase);
-
-    const serviceTower = new THREE.Mesh(new THREE.BoxGeometry(5, 42, 5), towerMat);
-    serviceTower.position.set(-12, 21, 0);
-    launchPadGroup.add(serviceTower);
-
-    const swingArm = new THREE.Mesh(new THREE.BoxGeometry(11, 1.2, 1.8), towerMat);
-    swingArm.position.set(-6, 26, 0);
-    launchPadGroup.add(swingArm);
-
-    const fuelTank1 = new THREE.Mesh(new THREE.SphereGeometry(4.5, 12, 12), tankMat);
-    fuelTank1.position.set(16, 4.5, -8);
-    launchPadGroup.add(fuelTank1);
-
-    const fuelTank2 = new THREE.Mesh(new THREE.SphereGeometry(4.5, 12, 12), tankMat);
-    fuelTank2.position.set(16, 4.5, 8);
-    launchPadGroup.add(fuelTank2);
-
-    scene.add(launchPadGroup);
-
-    // 3. Cloud Layer (Instanced/Grouped lightweight puffs at ~12km altitude)
-    const cloudGroup = new THREE.Group();
-    const cloudGeo = new THREE.PlaneGeometry(900, 900);
-    const cloudMat = new THREE.MeshBasicMaterial({
-      color: 0xf8fafc,
+    // ============================================================================
+    // 3. AI MILKY WAY 360° SKYBOX + FOREGROUND DRIFTING STARS
+    // ============================================================================
+    const spaceGroup = new THREE.Group();
+    const milkyWayTex = texLoader.load('assets/milkyway.jpg');
+    const skyboxMat = new THREE.MeshBasicMaterial({
+      map: milkyWayTex,
+      side: THREE.BackSide,
       transparent: true,
-      opacity: 0.42,
-      side: THREE.DoubleSide,
+      opacity: 0.0,
       depthWrite: false
     });
-    for (let i = 0; i < 36; i++) {
-      const m = new THREE.Mesh(cloudGeo, cloudMat);
-      const angle = (i / 36) * Math.PI * 2;
-      const rad = 400 + (i % 6) * 950;
-      m.position.set(
-        Math.cos(angle) * rad,
-        WORLD.CLOUD_ALT + (i % 5) * 85,
-        Math.sin(angle) * rad
-      );
-      m.rotation.x = Math.PI / 2;
-      m.rotation.z = i * 0.7;
-      cloudGroup.add(m);
-    }
-    scene.add(cloudGroup);
+    const skyboxSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(180000, 40, 28),
+      skyboxMat
+    );
+    skyboxSphere.rotation.z = 0.32;
+    skyboxSphere.rotation.y = -Math.PI * 0.45;
+    spaceGroup.add(skyboxSphere);
 
-    // 4. Deep Space Starfield & Milky Way Band
-    const spaceGroup = new THREE.Group();
-    const starCount = 2200;
+    // Foreground 3D parallax stars for depth perception
+    const starCount = 1500;
     const starPositions = new Float32Array(starCount * 3);
     const starColors = new Float32Array(starCount * 3);
     const palette = [
       new THREE.Color(0xffffff),
       new THREE.Color(0x93c5fd),
       new THREE.Color(0xfde68a),
-      new THREE.Color(0xfdba74),
-      new THREE.Color(0xc4b5fd)
+      new THREE.Color(0xfdba74)
     ];
-
     for (let i = 0; i < starCount; i++) {
       const u = Math.random();
       const v = Math.random();
       const theta = u * 2.0 * Math.PI;
       const phi = Math.acos(2.0 * v - 1.0);
-      const r = 95000 + Math.random() * 25000;
+      const r = 15000 + Math.random() * 85000;
       starPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       starPositions[i * 3 + 1] = r * Math.cos(phi);
       starPositions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-
       const c = palette[i % palette.length];
       starColors[i * 3] = c.r;
       starColors[i * 3 + 1] = c.g;
       starColors[i * 3 + 2] = c.b;
     }
-
     const starGeo = new THREE.BufferGeometry();
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
     starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
     const starMat = new THREE.PointsMaterial({
-      size: 260,
+      size: 160,
       vertexColors: true,
       transparent: true,
       opacity: 0.0,
-      depthWrite: false
-    });
-    const starPoints = new THREE.Points(starGeo, starMat);
-    spaceGroup.add(starPoints);
-
-    // Milky Way Panoramic Cylinder Band
-    const milkyWayTex = createMilkyWayTexture();
-    const milkyWayMat = new THREE.MeshBasicMaterial({
-      map: milkyWayTex,
-      transparent: true,
-      opacity: 0.0,
-      side: THREE.BackSide,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
-    const milkyWayCylinder = new THREE.Mesh(
-      new THREE.CylinderGeometry(90000, 90000, 42000, 32, 1, true),
-      milkyWayMat
-    );
-    milkyWayCylinder.rotation.z = 0.42;
-    milkyWayCylinder.rotation.x = 0.25;
-    spaceGroup.add(milkyWayCylinder);
+    const starPoints = new THREE.Points(starGeo, starMat);
+    spaceGroup.add(starPoints);
     scene.add(spaceGroup);
 
-    // 5. The Moon (Positioned high in space along flight path)
-    const moonTex = createMoonTexture();
-    const moonMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(WORLD.MOON_RADIUS, 36, 28),
-      new THREE.MeshLambertMaterial({ map: moonTex })
+    // ============================================================================
+    // 4. AI EARTH GLOBE + FRESNEL ATMOSPHERE SHADER + AI COASTAL SPACEPORT
+    // ============================================================================
+    const earthTex = texLoader.load('assets/earth.jpg');
+    const earthMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(WORLD.EARTH_RADIUS, 48, 36),
+      new THREE.MeshPhongMaterial({
+        map: earthTex,
+        specular: new THREE.Color(0x1e3a5f),
+        shininess: 18
+      })
     );
-    moonMesh.position.set(0, WORLD.MOON_ALTITUDE, -9000);
+    earthMesh.position.set(0, -WORLD.EARTH_RADIUS, 0);
+    // Rotate Earth so lush continent/coastline is right below the launch site
+    earthMesh.rotation.z = 0.45;
+    earthMesh.rotation.x = 0.35;
+    scene.add(earthMesh);
+
+    // Custom GLSL Rayleigh Atmosphere Fresnel Rim Glow (Costs ~0.01ms GPU!)
+    const atmosShaderMat = new THREE.ShaderMaterial({
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        void main() {
+          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.8);
+          gl_FragColor = vec4(0.22, 0.68, 1.0, 1.0) * intensity * 1.35;
+        }
+      `,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      transparent: true,
+      depthWrite: false
+    });
+    const earthAtmosHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(WORLD.EARTH_RADIUS * 1.035, 40, 30),
+      atmosShaderMat
+    );
+    earthAtmosHalo.position.copy(earthMesh.position);
+    scene.add(earthAtmosHalo);
+
+    // AI Satellite Spaceport Ground Terrain Patch around Launch Pad
+    const launchTerrainTex = texLoader.load('assets/launch_terrain.jpg');
+    const groundPatch = new THREE.Mesh(
+      new THREE.CircleGeometry(2800, 48),
+      new THREE.MeshLambertMaterial({ map: launchTerrainTex })
+    );
+    groundPatch.rotation.x = -Math.PI / 2;
+    groundPatch.position.y = 0.5;
+    scene.add(groundPatch);
+
+    // 3D Launch Complex Structures at Center of Pad
+    const launchPadGroup = new THREE.Group();
+    const towerMat = new THREE.MeshLambertMaterial({ color: 0x475569 });
+    const tankMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
+
+    const serviceTower = new THREE.Mesh(new THREE.BoxGeometry(5.5, 48, 5.5), towerMat);
+    serviceTower.position.set(-14, 24, -4);
+    launchPadGroup.add(serviceTower);
+
+    const swingArm = new THREE.Mesh(new THREE.BoxGeometry(13, 1.4, 2.0), towerMat);
+    swingArm.position.set(-7, 30, -4);
+    launchPadGroup.add(swingArm);
+
+    const lightningMast = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.8, 18, 8), tankMat);
+    lightningMast.position.set(-14, 57, -4);
+    launchPadGroup.add(lightningMast);
+
+    const fuelTank1 = new THREE.Mesh(new THREE.SphereGeometry(5, 14, 14), tankMat);
+    fuelTank1.position.set(20, 5, -10);
+    launchPadGroup.add(fuelTank1);
+
+    const fuelTank2 = new THREE.Mesh(new THREE.SphereGeometry(5, 14, 14), tankMat);
+    fuelTank2.position.set(20, 5, 10);
+    launchPadGroup.add(fuelTank2);
+
+    scene.add(launchPadGroup);
+
+    // Soft Cloud Billboards at ~11 km Altitude
+    const cloudCanvas = document.createElement('canvas');
+    cloudCanvas.width = 128;
+    cloudCanvas.height = 128;
+    const cctx = cloudCanvas.getContext('2d');
+    const cgrad = cctx.createRadialGradient(64, 64, 8, 64, 64, 64);
+    cgrad.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
+    cgrad.addColorStop(0.5, 'rgba(240, 248, 255, 0.32)');
+    cgrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    cctx.fillStyle = cgrad;
+    cctx.fillRect(0, 0, 128, 128);
+    const cloudSpriteTex = new THREE.CanvasTexture(cloudCanvas);
+
+    const cloudGroup = new THREE.Group();
+    const cloudMat = new THREE.MeshBasicMaterial({
+      map: cloudSpriteTex,
+      transparent: true,
+      opacity: 0.75,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    const cloudPlane = new THREE.PlaneGeometry(1400, 1400);
+    for (let i = 0; i < 42; i++) {
+      const m = new THREE.Mesh(cloudPlane, cloudMat);
+      const angle = (i / 42) * Math.PI * 2;
+      const rad = 350 + (i % 7) * 850;
+      m.position.set(
+        Math.cos(angle) * rad,
+        WORLD.CLOUD_ALT + (i % 5) * 90,
+        Math.sin(angle) * rad
+      );
+      m.rotation.x = Math.PI / 2;
+      m.rotation.z = i * 0.5;
+      cloudGroup.add(m);
+    }
+    scene.add(cloudGroup);
+
+    // ============================================================================
+    // 5. AI MOON WITH BUMP-MAPPED 3D CRATER RELIEF
+    // ============================================================================
+    const moonTex = texLoader.load('assets/moon.jpg');
+    const moonMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(WORLD.MOON_RADIUS, 48, 36),
+      new THREE.MeshPhongMaterial({
+        map: moonTex,
+        bumpMap: moonTex,
+        bumpScale: 22.0,
+        specular: new THREE.Color(0x111111),
+        shininess: 4
+      })
+    );
+    moonMesh.position.set(0, WORLD.MOON_ALTITUDE, -8200);
     scene.add(moonMesh);
 
-    // Subtle Lunar Glow Ring
-    const moonGlow = new THREE.Mesh(
-      new THREE.SphereGeometry(WORLD.MOON_RADIUS * 1.03, 24, 20),
+    // Soft Lunar Rim Halo
+    const moonHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(WORLD.MOON_RADIUS * 1.028, 32, 24),
       new THREE.MeshBasicMaterial({
         color: 0xe2e8f0,
         transparent: true,
-        opacity: 0.12,
-        side: THREE.BackSide
+        opacity: 0.14,
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending
       })
     );
-    moonGlow.position.copy(moonMesh.position);
-    scene.add(moonGlow);
+    moonHalo.position.copy(moonMesh.position);
+    scene.add(moonHalo);
 
-    // 6. Player Rocket Spacecraft (3D Model for External View & Shadows)
+    // ============================================================================
+    // 6. 3D ROCKET SPACECRAFT (For External Cinematic View)
+    // ============================================================================
     const rocketGroup = new THREE.Group();
-    const bodyMat = new THREE.MeshLambertMaterial({ color: 0xf1f5f9 });
-    const accentMat = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
-    const darkMetalMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
-    const glassMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.65 });
+    const bodyMat = new THREE.MeshPhongMaterial({ color: 0xf8fafc, shininess: 80 });
+    const accentMat = new THREE.MeshPhongMaterial({ color: 0xdc2626, shininess: 40 });
+    const darkMetalMat = new THREE.MeshPhongMaterial({ color: 0x1e293b, shininess: 60 });
+    const glassMat = new THREE.MeshPhongMaterial({ color: 0x38bdf8, shininess: 120 });
 
-    // Main Fuselage
-    const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.7, 12, 16), bodyMat);
+    const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.75, 12.5, 20), bodyMat);
     rocketGroup.add(fuselage);
 
-    // Red Accent Stripe
-    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(1.53, 1.56, 1.6, 16), accentMat);
-    stripe.position.y = 2.2;
+    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(1.54, 1.58, 1.7, 20), accentMat);
+    stripe.position.y = 2.4;
     rocketGroup.add(stripe);
 
-    // Nose Cone
-    const noseCone = new THREE.Mesh(new THREE.ConeGeometry(1.5, 4.5, 16), bodyMat);
-    noseCone.position.y = 8.25;
+    const noseCone = new THREE.Mesh(new THREE.ConeGeometry(1.5, 4.8, 20), bodyMat);
+    noseCone.position.y = 8.65;
     rocketGroup.add(noseCone);
 
-    // Cockpit Canopy Window
-    const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.85, 12, 12), glassMat);
-    canopy.scale.set(0.8, 1.5, 0.7);
-    canopy.position.set(0, 4.5, -1.15);
+    const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.9, 14, 14), glassMat);
+    canopy.scale.set(0.82, 1.55, 0.72);
+    canopy.position.set(0, 4.6, -1.18);
     rocketGroup.add(canopy);
 
-    // 4 Aerodynamic Fins
     for (let i = 0; i < 4; i++) {
-      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.18, 3.2, 2.4), accentMat);
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.4, 2.5), accentMat);
       const angle = (i * Math.PI) / 2;
-      fin.position.set(Math.sin(angle) * 1.8, -4.2, Math.cos(angle) * 1.8);
+      fin.position.set(Math.sin(angle) * 1.85, -4.3, Math.cos(angle) * 1.85);
       fin.rotation.y = angle;
       rocketGroup.add(fin);
     }
 
-    // Engine Bell Nozzle
-    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.35, 1.8, 14), darkMetalMat);
-    nozzle.position.y = -6.8;
+    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.4, 2.0, 16), darkMetalMat);
+    nozzle.position.y = -7.0;
     rocketGroup.add(nozzle);
 
-    // Animated Thruster Plasma Plume
-    const plumeMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.85
-    });
-    const plumeInnerMat = new THREE.MeshBasicMaterial({
-      color: 0xfef08a,
-      transparent: true,
-      opacity: 0.95
-    });
-    const plumeOuter = new THREE.Mesh(new THREE.ConeGeometry(1.25, 7.5, 12), plumeMat);
+    // Additive Thruster Glow Plume
+    const plumeOuter = new THREE.Mesh(
+      new THREE.ConeGeometry(1.35, 8.5, 14),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending })
+    );
     plumeOuter.rotation.x = Math.PI;
-    plumeOuter.position.y = -11.2;
+    plumeOuter.position.y = -11.8;
     rocketGroup.add(plumeOuter);
 
-    const plumeInner = new THREE.Mesh(new THREE.ConeGeometry(0.7, 4.5, 10), plumeInnerMat);
+    const plumeInner = new THREE.Mesh(
+      new THREE.ConeGeometry(0.75, 5.0, 12),
+      new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending })
+    );
     plumeInner.rotation.x = Math.PI;
-    plumeInner.position.y = -9.6;
+    plumeInner.position.y = -10.0;
     rocketGroup.add(plumeInner);
 
     scene.add(rocketGroup);
 
     // ============================================================================
-    // QUALITY SETTINGS & AUTO-FPS OPTIMIZER (Low-Spec PC Guarantee)
+    // QUALITY PRESETS & AUTO-FPS OPTIMIZER
     // ============================================================================
     function setQuality(mode) {
       qualityMode = mode;
@@ -890,13 +863,13 @@
       if (mode === 'low') {
         renderer.setPixelRatio(0.75);
         cloudGroup.visible = false;
-        starGeo.setDrawRange(0, 700);
+        starGeo.setDrawRange(0, 400);
       } else if (mode === 'medium') {
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.15));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
         cloudGroup.visible = true;
-        starGeo.setDrawRange(0, 1400);
+        starGeo.setDrawRange(0, 900);
       } else {
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.85));
         cloudGroup.visible = true;
         starGeo.setDrawRange(0, starCount);
       }
@@ -904,19 +877,19 @@
     }
 
     // ============================================================================
-    // CAMERA VIEW SWITCHING & CONTROLS
+    // CAMERA VIEW SWITCHING
     // ============================================================================
     const VIEW_NAMES = [
-      '操縦席コックピット (PILOT)',
-      '側面展望窓 (OBSERVATION)',
+      'AIフォトリアル操縦席 (PILOT)',
+      'パノラマ展望窓 (OBSERVATION)',
       '頭上キューポラドーム (CUPOLA)',
-      '機外シネマティック (EXTERNAL)'
+      '機外3Dロケット視点 (EXTERNAL)'
     ];
 
     function setCameraView(idx) {
       cameraViewIndex = ((idx % 4) + 4) % 4;
       document.getElementById('view-badge').textContent = `視点: ${VIEW_NAMES[cameraViewIndex]}`;
-      document.getElementById('svg-cockpit-pilot').style.display = cameraViewIndex === 0 ? 'block' : 'none';
+      cockpitCanvas.style.display = cameraViewIndex === 0 ? 'block' : 'none';
       document.getElementById('svg-cockpit-cabin').style.display = cameraViewIndex === 1 ? 'block' : 'none';
       document.getElementById('svg-cockpit-cupola').style.display = cameraViewIndex === 2 ? 'block' : 'none';
     }
@@ -950,23 +923,23 @@
 
     function warpToMoon() {
       isAutoCruise = false;
-      toggleCruise(); // sets back to manual cleanly
-      isAutoCruise = false;
       document.getElementById('mode-badge').textContent = '🕹️ マニュアル操縦 (月軌道)';
+      document.getElementById('mode-badge').className = 'badge badge-cyan';
       document.getElementById('tour-banner').style.display = 'none';
       document.getElementById('btn-cruise').classList.remove('active');
-      shipPos.set(0, WORLD.MOON_ALTITUDE - 1200, -4800);
+      shipPos.set(0, WORLD.MOON_ALTITUDE - 900, -3900);
       shipYaw = 0;
-      shipPitch = 0.22;
-      currentSpeed = 120;
-      setCameraView(3);
+      shipPitch = 0.18;
+      currentSpeed = 140;
+      lookYawOffset = 0;
+      lookPitchOffset = 0;
     }
 
     function resetToLaunchPad() {
       tourTime = 0;
-      shipPos.set(0, 12, 0);
+      shipPos.set(0, 18, 0);
       shipYaw = 0;
-      shipPitch = 0.08;
+      shipPitch = 0.12;
       shipRoll = 0;
       currentSpeed = 0;
       lookYawOffset = 0;
@@ -990,7 +963,6 @@
       else if (k === '2') setQuality('medium');
       else if (k === '3') setQuality('high');
       else if (['w', 's', 'a', 'd', ' '].includes(k) && isAutoCruise) {
-        // Pressing manual flight keys smoothly hands control to player
         toggleCruise();
       }
     });
@@ -1011,7 +983,7 @@
       const dy = e.clientY - prevMouse.y;
       prevMouse = { x: e.clientX, y: e.clientY };
       lookYawOffset -= dx * 0.004;
-      lookPitchOffset = Math.max(-1.2, Math.min(1.2, lookPitchOffset - dy * 0.004));
+      lookPitchOffset = Math.max(-1.1, Math.min(1.1, lookPitchOffset - dy * 0.004));
     });
 
     window.addEventListener('mouseup', () => { isDragging = false; });
@@ -1022,39 +994,37 @@
     });
 
     // ============================================================================
-    // SCENIC TOUR SPLINE / AUTO-CRUISE LOGIC
+    // SCENIC TOUR AUTO-CRUISE
     // ============================================================================
     function updateScenicTour(dt) {
       tourTime = (tourTime + dt) % TOUR_DURATION;
-      const p = tourTime / TOUR_DURATION; // 0.0 -> 1.0
+      const p = tourTime / TOUR_DURATION;
 
-      // Smooth altitude curve from Launch Pad (12) -> Moon Vicinity (37200) -> Orbit
-      const ease = 0.5 - 0.5 * Math.cos(Math.min(p * 1.15, 1.0) * Math.PI);
-      const targetY = 12 + ease * (WORLD.MOON_ALTITUDE - 1800);
-      const targetZ = -ease * 6200;
-      const targetX = Math.sin(p * Math.PI * 2) * 900 * ease;
+      const ease = 0.5 - 0.5 * Math.cos(Math.min(p * 1.12, 1.0) * Math.PI);
+      const targetY = 18 + ease * (WORLD.MOON_ALTITUDE - 1200);
+      const targetZ = -ease * 4800;
+      const targetX = Math.sin(p * Math.PI * 2) * 750 * ease;
 
       const prevPos = shipPos.clone();
       shipPos.set(targetX, targetY, targetZ);
       currentSpeed = shipPos.distanceTo(prevPos) / Math.max(dt, 0.001);
 
-      shipPitch = 0.35 * (1.0 - ease * 0.65);
-      shipYaw = Math.cos(p * Math.PI * 2) * 0.15;
+      shipPitch = 0.30 * (1.0 - ease * 0.65);
+      shipYaw = Math.cos(p * Math.PI * 2) * 0.14;
 
-      // Phase description & automatic scenic camera transitions
       let phaseName = '';
       if (p < 0.12) {
-        phaseName = 'PHASE 1 — 地球発射台リフトオフ (LAUNCH)';
-      } else if (p < 0.25) {
-        phaseName = 'PHASE 2 — 雲海突破・対流圏上昇 (CLOUD BREAKTHROUGH)';
+        phaseName = 'PHASE 1 — ケネディ宇宙基地リフトオフ (LAUNCH)';
+      } else if (p < 0.26) {
+        phaseName = 'PHASE 2 — 雲海突破・青い地球の弧 (CLOUD BREAKTHROUGH)';
       } else if (p < 0.42) {
-        phaseName = 'PHASE 3 — 成層圏・窓ガラス氷結 (STRATOSPHERE FROST)';
-      } else if (p < 0.62) {
-        phaseName = 'PHASE 4 — 大気圏脱出・天の川銀河 (DEEP SPACE & MILKY WAY)';
-      } else if (p < 0.85) {
-        phaseName = 'PHASE 5 — 月接近・クレーター観賞 (LUNAR APPROACH)';
+        phaseName = 'PHASE 3 — 成層圏・窓ガラスの氷結 (STRATOSPHERE FROST)';
+      } else if (p < 0.65) {
+        phaseName = 'PHASE 4 — 宇宙空間・天の川銀河パノラマ (MILKY WAY GALAXY)';
+      } else if (p < 0.86) {
+        phaseName = 'PHASE 5 — 月面クレーター接近フライト (LUNAR CRATER APPROACH)';
       } else {
-        phaseName = 'PHASE 6 — 月周回・地球の出 (EARTHRISE)';
+        phaseName = 'PHASE 6 — 月周回軌道・地球の出 (EARTHRISE IN DEEP SPACE)';
       }
 
       document.getElementById('tour-phase-text').textContent = `☕ 自動遊覧ツアー: ${phaseName}`;
@@ -1066,8 +1036,8 @@
     // MANUAL FLIGHT DYNAMICS
     // ============================================================================
     function updateManualFlight(dt) {
-      const boost = keys['shift'] ? 3.5 : 1.0;
-      const baseThrust = 1400 * boost;
+      const boost = keys['shift'] ? 3.6 : 1.0;
+      const baseThrust = 1500 * boost;
 
       if (keys['a'] || keys['arrowleft']) shipYaw += 1.1 * dt;
       if (keys['d'] || keys['arrowright']) shipYaw -= 1.1 * dt;
@@ -1078,75 +1048,74 @@
         -Math.cos(shipYaw) * Math.cos(shipPitch)
       ).normalize();
 
-      if (keys['w'] || keys['arrowup']) {
-        shipVel.addScaledVector(forward, baseThrust * dt);
-      }
-      if (keys['s'] || keys['arrowdown']) {
-        shipVel.addScaledVector(forward, -baseThrust * 0.7 * dt);
-      }
-      if (keys[' '] || keys['e']) {
-        shipVel.y += baseThrust * 1.35 * dt;
-      }
-      if (keys['control'] || keys['q']) {
-        shipVel.y -= baseThrust * 1.1 * dt;
-      }
+      if (keys['w'] || keys['arrowup']) shipVel.addScaledVector(forward, baseThrust * dt);
+      if (keys['s'] || keys['arrowdown']) shipVel.addScaledVector(forward, -baseThrust * 0.7 * dt);
+      if (keys[' '] || keys['e']) shipVel.y += baseThrust * 1.4 * dt;
+      if (keys['control'] || keys['q']) shipVel.y -= baseThrust * 1.1 * dt;
 
-      // Mild damping for smooth control
       shipVel.multiplyScalar(Math.pow(0.92, dt * 60));
       shipPos.addScaledVector(shipVel, dt);
-      if (shipPos.y < 12) {
-        shipPos.y = 12;
+      if (shipPos.y < 18) {
+        shipPos.y = 18;
         shipVel.y = Math.max(0, shipVel.y);
       }
       currentSpeed = shipVel.length();
     }
 
     // ============================================================================
-    // ATMOSPHERE, GLASS SHADER & TELEMETRY UPDATE
+    // ENVIRONMENT, SKYBOX BLENDING & COCKPIT PARALLAX
     // ============================================================================
-    const skyColorGround = new THREE.Color(0x4a88d8);
-    const skyColorStrato = new THREE.Color(0x0b1d42);
-    const skyColorSpace = new THREE.Color(0x02040a);
+    const skyColorGround = new THREE.Color(0x3882e8);
+    const skyColorStrato = new THREE.Color(0x091938);
+    const skyColorSpace = new THREE.Color(0x010206);
 
     function updateEnvironmentAndHUD(timeSec) {
-      const altKm = Math.max(0, (shipPos.y - 12) / 100.0);
+      const altKm = Math.max(0, (shipPos.y - 18) / 100.0);
       const atmosFactor = Math.max(0, Math.min(1, 1.0 - shipPos.y / WORLD.ATMOS_TOP));
 
-      // Smooth sky color transition from blue sky -> stratosphere navy -> deep space black
-      if (atmosFactor > 0.45) {
-        const t = (atmosFactor - 0.45) / 0.55;
+      if (atmosFactor > 0.42) {
+        const t = (atmosFactor - 0.42) / 0.58;
         scene.background.lerpColors(skyColorStrato, skyColorGround, t);
       } else {
-        const t = atmosFactor / 0.45;
+        const t = atmosFactor / 0.42;
         scene.background.lerpColors(skyColorSpace, skyColorStrato, t);
       }
       scene.fog.color.copy(scene.background);
-      scene.fog.density = 0.00018 * atmosFactor * atmosFactor;
+      scene.fog.density = 0.00012 * atmosFactor * atmosFactor;
 
-      // Stars & Milky Way emerge as we leave atmosphere
-      const spaceVis = Math.pow(1.0 - atmosFactor, 1.4);
-      starMat.opacity = spaceVis;
-      milkyWayMat.opacity = spaceVis * 0.85;
+      // Fade in AI Milky Way Skybox & Foreground Stars as we ascend above clouds
+      const spaceVis = Math.pow(1.0 - atmosFactor, 1.15);
+      skyboxMat.opacity = spaceVis;
+      starMat.opacity = spaceVis * 0.9;
       spaceGroup.position.copy(shipPos);
 
-      // Cockpit Glass Frost (Stratosphere 15km - 55km)
+      // Subtle cockpit vibration & head-turn parallax
+      if (cameraViewIndex === 0) {
+        const vibX = Math.sin(timeSec * 37) * (currentSpeed > 50 ? 1.2 : 0.2);
+        const vibY = Math.cos(timeSec * 43) * (currentSpeed > 50 ? 1.2 : 0.2);
+        const parX = THREE.MathUtils.clamp(lookYawOffset * 28, -22, 22) + vibX;
+        const parY = THREE.MathUtils.clamp(-lookPitchOffset * 22, -18, 18) + vibY;
+        cockpitCanvas.style.transform = `translate(${parX.toFixed(1)}px, ${parY.toFixed(1)}px)`;
+      }
+
+      // Stratosphere Frost
       let frostAlpha = 0;
       if (shipPos.y > WORLD.STRATO_START && shipPos.y < WORLD.STRATO_END) {
         const mid = (WORLD.STRATO_START + WORLD.STRATO_END) * 0.5;
         const half = (WORLD.STRATO_END - WORLD.STRATO_START) * 0.5;
-        frostAlpha = (1.0 - Math.abs(shipPos.y - mid) / half) * 0.35;
+        frostAlpha = (1.0 - Math.abs(shipPos.y - mid) / half) * 0.32;
       }
       document.documentElement.style.setProperty('--frost-alpha', frostAlpha.toFixed(3));
 
-      // Update Rocket Transform & Thruster Plume Animation
+      // Rocket Transform
       rocketGroup.position.copy(shipPos);
       rocketGroup.rotation.set(shipPitch - Math.PI / 2 + 1.4, shipYaw, shipRoll);
-      const pulse = 0.85 + Math.sin(timeSec * 28) * 0.2;
+      const pulse = 0.85 + Math.sin(timeSec * 30) * 0.22;
       plumeOuter.scale.set(1, pulse, 1);
       plumeInner.scale.set(1, pulse * 1.1, 1);
       rocketGroup.visible = (cameraViewIndex === 3);
 
-      // Camera positioning per view mode
+      // Camera Viewpoints
       const totalYaw = shipYaw + lookYawOffset;
       const totalPitch = shipPitch + lookPitchOffset;
       const lookDir = new THREE.Vector3(
@@ -1156,26 +1125,28 @@
       );
 
       if (cameraViewIndex === 0) {
-        // Cockpit Pilot
-        camera.position.copy(shipPos).add(new THREE.Vector3(0, 3.5, 0));
-        camera.lookAt(camera.position.clone().add(lookDir.multiplyScalar(100)));
+        // AI Photorealistic Cockpit View: offset look slightly upward so window center frames the scene
+        camera.position.copy(shipPos).add(new THREE.Vector3(0, 3.8, 0));
+        const target = camera.position.clone().add(lookDir.multiplyScalar(120));
+        target.y -= 18; // Shifts 3D horizon into the upper panoramic windshield
+        camera.lookAt(target);
       } else if (cameraViewIndex === 1) {
-        // Side Observation Window (looking toward Earth/Horizon)
-        camera.position.copy(shipPos).add(new THREE.Vector3(2.0, 2.0, 0));
-        camera.lookAt(shipPos.x + 120 * Math.cos(lookYawOffset), shipPos.y - 45 + lookPitchOffset * 60, shipPos.z - 80);
+        // Observation Deck Window (looking down at Earth & horizon)
+        camera.position.copy(shipPos).add(new THREE.Vector3(2.5, 2.0, 0));
+        camera.lookAt(shipPos.x + 90 * Math.sin(lookYawOffset), shipPos.y - 65 + lookPitchOffset * 70, shipPos.z - 90);
       } else if (cameraViewIndex === 2) {
-        // Top Cupola Dome (looking upward at stars, Milky Way & Moon)
+        // Cupola Dome View (looking up at Milky Way & Moon)
         camera.position.copy(shipPos).add(new THREE.Vector3(0, 6.0, 0));
         camera.lookAt(moonMesh.position.x + lookYawOffset * 5000, moonMesh.position.y, moonMesh.position.z + lookPitchOffset * 5000);
       } else {
         // External Cinematic View
         const camOffset = new THREE.Vector3(
-          Math.sin(totalYaw + 0.35) * 28,
-          8 - Math.sin(totalPitch) * 10,
-          Math.cos(totalYaw + 0.35) * 28
+          Math.sin(totalYaw + 0.38) * 26,
+          7 - Math.sin(totalPitch) * 10,
+          Math.cos(totalYaw + 0.38) * 26
         );
         camera.position.copy(shipPos).add(camOffset);
-        camera.lookAt(shipPos.clone().add(new THREE.Vector3(0, 2, -10)));
+        camera.lookAt(shipPos.clone().add(new THREE.Vector3(0, 3, -12)));
       }
 
       // Telemetry DOM update
@@ -1188,14 +1159,14 @@
       document.getElementById('tel-moon').textContent = `${moonDistKm.toFixed(1)} km`;
 
       const envEl = document.getElementById('tel-env');
-      if (altKm > 80) {
-        envEl.textContent = '🌌 宇宙空間 (天の川銀河・真空)';
-      } else if (altKm > 50) {
-        envEl.textContent = '✨ 中間圏 (群青から宇宙の漆黒へ)';
+      if (altKm > 75) {
+        envEl.textContent = '🌌 宇宙空間 (天の川銀河パノラマ・真空)';
+      } else if (altKm > 45) {
+        envEl.textContent = '✨ 中間圏 (大気リム発光・星々の出現)';
       } else if (altKm > 15) {
         envEl.textContent = '❄️ 成層圏 (窓ガラスに氷結の結晶)';
       } else {
-        envEl.textContent = '🌍 地上・対流圏 (青空と雲海)';
+        envEl.textContent = '🌍 沿岸宇宙基地・対流圏 (青空と雲海)';
       }
     }
 
@@ -1211,14 +1182,13 @@
       const dt = Math.min((now - prevTime) / 1000, 0.1);
       prevTime = now;
 
-      // FPS counter & automatic low-spec fallback
       frameCount++;
       fpsAccum += dt;
       if (fpsAccum >= 0.75) {
         const fps = Math.round(frameCount / fpsAccum);
         document.getElementById('fps-badge').textContent = `${fps} FPS`;
         if (fps < 38 && qualityMode === 'high') setQuality('medium');
-        else if (fps < 32 && qualityMode === 'medium') setQuality('low');
+        else if (fps < 30 && qualityMode === 'medium') setQuality('low');
         frameCount = 0;
         fpsAccum = 0;
       }
@@ -1229,9 +1199,8 @@
         updateManualFlight(dt);
       }
 
-      // Gentle Moon & Earth rotation
-      moonMesh.rotation.y += dt * 0.015;
-      earthMesh.rotation.y += dt * 0.004;
+      moonMesh.rotation.y += dt * 0.012;
+      earthMesh.rotation.y += dt * 0.005;
 
       updateEnvironmentAndHUD(now * 0.001);
       renderer.render(scene, camera);
