@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>🚀 Space Odyssey: Earth to Moon — AI Photorealistic WebGL Edition</title>
+  <title>🚀 Space Odyssey: Earth to Moon — Hybrid AI Cinema Edition</title>
   <style>
     :root {
       --cyan: #38bdf8;
       --gold: #fbbf24;
       --emerald: #34d399;
-      --bg-panel: rgba(5, 11, 24, 0.72);
+      --bg-panel: rgba(4, 9, 20, 0.72);
       --border-glow: rgba(56, 189, 248, 0.42);
     }
     * {
@@ -23,7 +23,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #010308;
+      background: #010206;
       font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
       color: #f1f5f9;
     }
@@ -32,18 +32,18 @@
       inset: 0;
       z-index: 1;
     }
-    /* Stratosphere Frost & Re-entry Glow Layer */
+    /* Stratosphere Frost & Atmospheric Glow */
     #glass-overlay {
       position: fixed;
       inset: 0;
       z-index: 2;
       pointer-events: none;
       background:
-        radial-gradient(circle at 50% 42%, transparent 48%, rgba(165, 225, 255, var(--frost-alpha, 0)) 100%),
+        radial-gradient(circle at 50% 42%, transparent 50%, rgba(165, 225, 255, var(--frost-alpha, 0)) 100%),
         radial-gradient(circle at 50% 42%, transparent 55%, rgba(255, 110, 30, var(--plasma-alpha, 0)) 100%);
       box-shadow: inset 0 0 90px rgba(140, 215, 255, var(--frost-alpha, 0));
     }
-    /* AI Photorealistic Cockpit Canvas Overlay */
+    /* High-DPI AI Photorealistic Cockpit Canvas Overlay */
     #cockpit-canvas {
       position: fixed;
       inset: -2%;
@@ -194,10 +194,10 @@
     #crosshair {
       position: absolute;
       left: 50%;
-      top: 38%;
+      top: 36%;
       transform: translate(-50%, -50%);
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border: 1.5px solid rgba(56, 189, 248, 0.35);
       border-radius: 50%;
       pointer-events: none;
@@ -223,7 +223,7 @@
     }
     #help-panel {
       margin-left: auto;
-      width: 320px;
+      width: 325px;
       background: var(--bg-panel);
       border: 1px solid var(--border-glow);
       border-top: 2px solid var(--gold);
@@ -293,7 +293,7 @@
       flex-wrap: wrap;
     }
     .telemetry-panel {
-      min-width: 310px;
+      min-width: 320px;
       background: var(--bg-panel);
       border: 1px solid var(--border-glow);
       border-top: 2px solid var(--cyan);
@@ -341,7 +341,7 @@
   <div id="canvas-container"></div>
   <div id="glass-overlay"></div>
 
-  <!-- AI Photorealistic Cockpit Canvas (Windows dynamically alpha-masked on load) -->
+  <!-- AI Photorealistic Cockpit Canvas -->
   <canvas id="cockpit-canvas"></canvas>
 
   <!-- Secondary SVG Frame for Observation & Cupola Dome Views -->
@@ -368,10 +368,10 @@
           <span id="fps-badge" class="badge badge-emerald">60 FPS</span>
         </div>
         <div class="top-controls">
-          <span style="font-size:11px;color:#94a3b8;margin-right:2px;">画質(低負荷AIテクスチャ):</span>
-          <button id="q-low" class="btn btn-quality" onclick="setQuality('low')">1: 超軽量</button>
-          <button id="q-med" class="btn btn-quality active" onclick="setQuality('medium')">2: 標準</button>
-          <button id="q-high" class="btn btn-quality" onclick="setQuality('high')">3: 最高画質</button>
+          <span style="font-size:11px;color:#94a3b8;margin-right:2px;">画質(アンチエイリアス高精細):</span>
+          <button id="q-low" class="btn btn-quality" onclick="setQuality('low')">1: 軽量</button>
+          <button id="q-med" class="btn btn-quality" onclick="setQuality('medium')">2: 標準</button>
+          <button id="q-high" class="btn btn-quality active" onclick="setQuality('high')">3: 高精細(推奨)</button>
           <button class="btn" onclick="toggleHelp()">[H] 操作ヒント</button>
         </div>
       </div>
@@ -404,9 +404,9 @@
           <div class="key-row"><span class="key-cap">A / D</span><span>左右旋回・ヨー</span></div>
           <div class="key-row"><span class="key-cap gold">Shift</span><span>⚡ スーパーブースト加速</span></div>
           <div class="key-row"><span class="key-cap">マウスドラッグ</span><span>👁️ 360° フリー視点見回し</span></div>
+          <div class="key-row"><span class="key-cap gold">U</span><span>🌌 大星雲・銀河観賞スポットへワープ</span></div>
           <div class="key-row"><span class="key-cap gold">J</span><span>🌙 月軌道へ即時ワープ</span></div>
           <div class="key-row"><span class="key-cap">R</span><span>🌍 宇宙基地発射台へリセット</span></div>
-          <div class="key-row"><span class="key-cap emerald">1 / 2 / 3</span><span>💻 画質モード (1:超軽量 2:標準 3:最高画質)</span></div>
         </div>
       </div>
     </div>
@@ -432,6 +432,7 @@
       <div class="quick-dock interactive">
         <button id="btn-cruise" class="btn active" onclick="toggleCruise()">☕ 自動遊覧 [C]</button>
         <button class="btn" onclick="cycleCameraView()">🪟 視点切替 [V]</button>
+        <button class="btn" onclick="warpToDeepSpace()">🌌 星雲・銀河へ [U]</button>
         <button class="btn" onclick="warpToMoon()">🌙 月へワープ [J]</button>
         <button class="btn" onclick="resetToLaunchPad()">🌍 発射台へ戻る [R]</button>
       </div>
@@ -442,44 +443,45 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     // ============================================================================
-    // SPACE ODYSSEY: AI PHOTOREALISTIC + ZERO-GPU-LOAD EDITION
-    // Uses AI-generated panoramic & planetary textures + custom lightweight GLSL
+    // SPACE ODYSSEY v3.0 — SMART HYBRID AI MULTI-LAYER CINEMA ENGINE
+    // - Eliminates pixelation ("がびがび") via MSAA + High-DPI Anisotropic Filtering
+    //   + High-Density Curved Celestial Layers (instead of 360-stretched low-res)
+    // - Populates deep space with JWST Nebulae, Spiral Galaxies, ISS Station,
+    //   Planetary Aurora, Comets, and 3D Parallax Star Clusters at near-zero GPU load
     // ============================================================================
 
     const WORLD = {
       MOON_ALTITUDE: 38400, // 384.0 km scaled (100 units = 1 km)
-      MOON_RADIUS: 2800,
+      MOON_RADIUS: 3100,
       EARTH_RADIUS: 22000,
-      ATMOS_TOP: 7500,      // 75 km Karman transition
-      CLOUD_ALT: 1100,      // 11 km cloud deck
-      STRATO_START: 1500,
-      STRATO_END: 5200
+      ATMOS_TOP: 6500,      // 65 km transition so deep space starts earlier & richer!
+      CLOUD_ALT: 1050,
+      STRATO_START: 1400,
+      STRATO_END: 4800
     };
 
-    let qualityMode = 'medium';
+    let qualityMode = 'high';
     let isAutoCruise = true;
     let tourTime = 0;
-    const TOUR_DURATION = 90;
-    let cameraViewIndex = 0; // 0: AI Cockpit, 1: Observation Window, 2: Cupola, 3: External Rocket
+    const TOUR_DURATION = 88;
+    let cameraViewIndex = 0;
     let showHelp = true;
 
-    // Flight state
     const shipPos = new THREE.Vector3(0, 18, 0);
     const shipVel = new THREE.Vector3();
     let shipYaw = 0;
-    let shipPitch = 0.12;
+    let shipPitch = 0.14;
     let shipRoll = 0;
     let currentSpeed = 0;
     let lookYawOffset = 0;
     let lookPitchOffset = 0;
 
-    // Input state
     const keys = {};
     let isDragging = false;
     let prevMouse = { x: 0, y: 0 };
 
     // ============================================================================
-    // 1. AI COCKPIT OVERLAY ALPHA-MASKING (Zero 3D GPU cost, Photorealistic Interior)
+    // 1. AI COCKPIT OVERLAY ALPHA-MASKING (Crisp Native Resolution)
     // ============================================================================
     const cockpitCanvas = document.getElementById('cockpit-canvas');
     const cockpitImg = new Image();
@@ -490,19 +492,16 @@
       cockpitCanvas.width = w;
       cockpitCanvas.height = h;
       const ctx = cockpitCanvas.getContext('2d');
-
-      // Step 1: Draw full AI cockpit interior
       ctx.drawImage(cockpitImg, 0, 0, w, h);
 
-      // Step 2: Create feathered window cutout mask on offscreen canvas
       const maskCanvas = document.createElement('canvas');
       maskCanvas.width = w;
       maskCanvas.height = h;
       const mctx = maskCanvas.getContext('2d');
-      mctx.filter = 'blur(6px)';
-      mctx.fillStyle = 'rgba(0, 0, 0, 0.90)'; // 90% transparent glass (keeps 10% realistic HUD glass reflection!)
+      mctx.filter = 'blur(5px)';
+      mctx.fillStyle = 'rgba(0, 0, 0, 0.92)'; // 92% crystal clear window transparency
 
-      // Center Panoramic Windshield Polygon
+      // Center Panoramic Windshield
       mctx.beginPath();
       mctx.moveTo(w * 0.10, h * 0.058);
       mctx.lineTo(w * 0.372, h * 0.028);
@@ -515,7 +514,7 @@
       mctx.closePath();
       mctx.fill();
 
-      // Left Side Window Polygon
+      // Left Window
       mctx.beginPath();
       mctx.moveTo(0, h * 0.155);
       mctx.lineTo(w * 0.286, h * 0.596);
@@ -523,7 +522,7 @@
       mctx.closePath();
       mctx.fill();
 
-      // Right Side Window Polygon
+      // Right Window
       mctx.beginPath();
       mctx.moveTo(w, h * 0.155);
       mctx.lineTo(w * 0.714, h * 0.596);
@@ -531,138 +530,312 @@
       mctx.closePath();
       mctx.fill();
 
-      // Punch out the windows smoothly
       ctx.globalCompositeOperation = 'destination-out';
       ctx.drawImage(maskCanvas, 0, 0);
       ctx.globalCompositeOperation = 'source-over';
     };
 
     // ============================================================================
-    // 2. THREE.JS SCENE & TEXTURE LOADER
+    // 2. THREE.JS RENDERER WITH HARDWARE MSAA & ANISOTROPIC FILTERING
+    //    (Completely fixes "がびがび" jaggedness & blurriness!)
     // ============================================================================
     const container = document.getElementById('canvas-container');
     const renderer = new THREE.WebGLRenderer({
-      antialias: false,
+      antialias: true, // Hardware MSAA enabled for razor-sharp edges!
       powerPreference: 'high-performance'
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.35));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
     container.appendChild(renderer.domElement);
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x3b82f6);
-    scene.fog = new THREE.FogExp2(0x7dd3fc, 0.00012);
-
-    const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 1.0, 320000);
+    const maxAniso = renderer.capabilities.getMaxAnisotropy();
     const texLoader = new THREE.TextureLoader();
 
+    function loadCrispTexture(url) {
+      const t = texLoader.load(url);
+      t.anisotropy = maxAniso;
+      t.minFilter = THREE.LinearMipmapLinearFilter;
+      t.magFilter = THREE.LinearFilter;
+      return t;
+    }
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x2b6cb0);
+    scene.fog = new THREE.FogExp2(0x63b3ed, 0.00010);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1.0, 400000);
+
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0x8fa8d6, 0.55);
+    const ambientLight = new THREE.AmbientLight(0x9ab8e8, 0.58);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff8eb, 1.85);
-    sunLight.position.set(45000, 52000, -35000);
+    const sunLight = new THREE.DirectionalLight(0xfff9ed, 2.0);
+    sunLight.position.set(48000, 55000, -38000);
     scene.add(sunLight);
 
-    // Sun visual corona sprite
-    const sunCanvas = document.createElement('canvas');
-    sunCanvas.width = 256;
-    sunCanvas.height = 256;
-    const sctx = sunCanvas.getContext('2d');
-    const sgrad = sctx.createRadialGradient(128, 128, 6, 128, 128, 128);
-    sgrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    sgrad.addColorStop(0.2, 'rgba(255, 240, 190, 0.85)');
-    sgrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.25)');
-    sgrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    sctx.fillStyle = sgrad;
-    sctx.fillRect(0, 0, 256, 256);
-    const sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: new THREE.CanvasTexture(sunCanvas),
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    }));
-    sunSprite.scale.set(16000, 16000, 1);
-    sunSprite.position.copy(sunLight.position);
-    scene.add(sunSprite);
+    // Helper: Create Soft Circular Glow & Diffraction Star Sprite Texture
+    function createStarGlowTexture(withSpikes = false) {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 128;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(64, 64, 1, 64, 64, 60);
+      g.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      g.addColorStop(0.18, 'rgba(210, 235, 255, 0.9)');
+      g.addColorStop(0.45, 'rgba(110, 185, 255, 0.25)');
+      g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 128, 128);
+
+      if (withSpikes) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(4, 64); ctx.lineTo(124, 64);
+        ctx.moveTo(64, 4); ctx.lineTo(64, 124);
+        ctx.stroke();
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    const softStarTex = createStarGlowTexture(false);
+    const spikeStarTex = createStarGlowTexture(true);
 
     // ============================================================================
-    // 3. AI MILKY WAY 360° SKYBOX + FOREGROUND DRIFTING STARS
+    // 3. SMART MULTI-LAYER AI COSMIC ARCHITECTURE (High-DPI, Zero Stretching!)
+    //    Instead of stretching 1 texture 360°, we compose:
+    //    - Crisp native-resolution starfields (soft circular sprites + spike stars)
+    //    - High-DPI Curved Milky Way Panoramic Arc (120° arc = 3x sharper!)
+    //    - 3D Parallax JWST Cosmic Nebula ("Pillars of Creation")
+    //    - 3D Parallax Andromeda Spiral Galaxy
     // ============================================================================
     const spaceGroup = new THREE.Group();
-    const milkyWayTex = texLoader.load('assets/milkyway.jpg');
-    const skyboxMat = new THREE.MeshBasicMaterial({
-      map: milkyWayTex,
-      side: THREE.BackSide,
-      transparent: true,
-      opacity: 0.0,
-      depthWrite: false
-    });
-    const skyboxSphere = new THREE.Mesh(
-      new THREE.SphereGeometry(180000, 40, 28),
-      skyboxMat
-    );
-    skyboxSphere.rotation.z = 0.32;
-    skyboxSphere.rotation.y = -Math.PI * 0.45;
-    spaceGroup.add(skyboxSphere);
+    const spaceFadeMaterials = []; // All materials whose uOpacity scales with spaceVis
 
-    // Foreground 3D parallax stars for depth perception
-    const starCount = 1500;
-    const starPositions = new Float32Array(starCount * 3);
-    const starColors = new Float32Array(starCount * 3);
-    const palette = [
-      new THREE.Color(0xffffff),
-      new THREE.Color(0x93c5fd),
-      new THREE.Color(0xfde68a),
-      new THREE.Color(0xfdba74)
-    ];
-    for (let i = 0; i < starCount; i++) {
-      const u = Math.random();
-      const v = Math.random();
-      const theta = u * 2.0 * Math.PI;
-      const phi = Math.acos(2.0 * v - 1.0);
-      const r = 15000 + Math.random() * 85000;
-      starPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      starPositions[i * 3 + 1] = r * Math.cos(phi);
-      starPositions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-      const c = palette[i % palette.length];
-      starColors[i * 3] = c.r;
-      starColors[i * 3 + 1] = c.g;
-      starColors[i * 3 + 2] = c.b;
+    // Custom GLSL Shader for AI Celestial Layers:
+    // Smoothly feathers rectangular UV edges AND turns dark pixels transparent
+    // while boosting vibrant nebula/galaxy colors!
+    function createCelestialLayerMaterial(tex, brightness = 1.35) {
+      const mat = new THREE.ShaderMaterial({
+        uniforms: {
+          uTex: { value: tex },
+          uOpacity: { value: 0.0 },
+          uBrightness: { value: brightness }
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D uTex;
+          uniform float uOpacity;
+          uniform float uBrightness;
+          varying vec2 vUv;
+          void main() {
+            vec4 col = texture2D(uTex, vUv);
+            // Smooth elliptical edge vignette so there is NEVER a visible border
+            vec2 d = (vUv - vec2(0.5)) * 2.0;
+            float edgeFade = 1.0 - smoothstep(0.55, 0.98, length(d));
+            // Luminance-based black removal for clean additive glow
+            float lum = dot(col.rgb, vec3(0.299, 0.587, 0.114));
+            float alpha = smoothstep(0.03, 0.25, lum) * edgeFade * uOpacity;
+            gl_FragColor = vec4(col.rgb * uBrightness, alpha);
+          }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      });
+      spaceFadeMaterials.push(mat);
+      return mat;
     }
-    const starGeo = new THREE.BufferGeometry();
-    starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-    const starMat = new THREE.PointsMaterial({
-      size: 160,
+
+    const milkyWayTex = loadCrispTexture('assets/milkyway.jpg');
+    const nebulaTex = loadCrispTexture('assets/nebula.jpg');
+    const galaxyTex = loadCrispTexture('assets/galaxy.jpg');
+
+    // A) High-DPI Curved Milky Way Band directly across the forward sky (130° arc instead of 360°!)
+    const mwArcGeo = new THREE.CylinderGeometry(
+      120000, 120000, 72000, 48, 1, true,
+      Math.PI * 0.62, Math.PI * 0.76
+    );
+    const mwArcMat = createCelestialLayerMaterial(milkyWayTex, 1.45);
+    const mwArcMesh = new THREE.Mesh(mwArcGeo, mwArcMat);
+    mwArcMesh.rotation.z = 0.28;
+    mwArcMesh.rotation.x = 0.18;
+    mwArcMesh.position.set(0, 12000, 0);
+    spaceGroup.add(mwArcMesh);
+
+    // Secondary Milky Way Arc on the opposite horizon
+    const mwBackMesh = mwArcMesh.clone();
+    mwBackMesh.rotation.y = Math.PI;
+    mwBackMesh.rotation.z = -0.25;
+    spaceGroup.add(mwBackMesh);
+
+    scene.add(spaceGroup);
+
+    // B) 3D Parallax World-Space Celestial Vistas along the Earth-to-Moon Corridor!
+    // Because these are in world space, you actually fly PAST and TOWARD them with real 3D parallax!
+    const parallaxVistaGroup = new THREE.Group();
+
+    // Vista 1: Giant JWST "Pillars of Creation" Nebula on the Left-Forward Flight Corridor
+    const nebulaMat1 = createCelestialLayerMaterial(nebulaTex, 1.55);
+    const nebulaPlane1 = new THREE.Mesh(new THREE.PlaneGeometry(42000, 42000), nebulaMat1);
+    nebulaPlane1.position.set(-22000, 22000, -48000);
+    nebulaPlane1.lookAt(0, 15000, 0);
+    parallaxVistaGroup.add(nebulaPlane1);
+
+    // Vista 2: Majestic Andromeda Spiral Galaxy on the Right-Forward Flight Corridor
+    const galaxyMat1 = createCelestialLayerMaterial(galaxyTex, 1.5);
+    const galaxyPlane1 = new THREE.Mesh(new THREE.PlaneGeometry(38000, 38000), galaxyMat1);
+    galaxyPlane1.position.set(25000, 29000, -44000);
+    galaxyPlane1.lookAt(0, 20000, 0);
+    parallaxVistaGroup.add(galaxyPlane1);
+
+    // Vista 3: High-Altitude Distant Nebula behind the Moon (frames the Moon with cosmic color!)
+    const nebulaMat2 = createCelestialLayerMaterial(nebulaTex, 1.25);
+    const nebulaPlane2 = new THREE.Mesh(new THREE.PlaneGeometry(55000, 55000), nebulaMat2);
+    nebulaPlane2.position.set(4500, WORLD.MOON_ALTITUDE + 6000, -58000);
+    nebulaPlane2.rotation.z = 0.8;
+    nebulaPlane2.lookAt(0, WORLD.MOON_ALTITUDE, 0);
+    parallaxVistaGroup.add(nebulaPlane2);
+
+    // Vista 4: Distant Spiral Galaxy visible during Cupola / Rear Earthrise view
+    const galaxyMat2 = createCelestialLayerMaterial(galaxyTex, 1.35);
+    const galaxyPlane2 = new THREE.Mesh(new THREE.PlaneGeometry(44000, 44000), galaxyMat2);
+    galaxyPlane2.position.set(-28000, 34000, 38000);
+    galaxyPlane2.lookAt(0, 24000, 0);
+    parallaxVistaGroup.add(galaxyPlane2);
+
+    scene.add(parallaxVistaGroup);
+
+    // C) Crisp Anti-Aliased Circular Starfield + Bright Diffraction-Spike Stars
+    function createStarLayer(count, minRadius, maxRadius, size, tex, colors) {
+      const pos = new Float32Array(count * 3);
+      const col = new Float32Array(count * 3);
+      for (let i = 0; i < count; i++) {
+        const u = Math.random();
+        const v = Math.random();
+        const theta = u * 2.0 * Math.PI;
+        const phi = Math.acos(2.0 * v - 1.0);
+        const r = minRadius + Math.random() * (maxRadius - minRadius);
+        pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        pos[i * 3 + 1] = r * Math.cos(phi);
+        pos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+        const c = colors[i % colors.length];
+        col[i * 3] = c.r;
+        col[i * 3 + 1] = c.g;
+        col[i * 3 + 2] = c.b;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+      const mat = new THREE.PointsMaterial({
+        size: size,
+        map: tex,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      return { points: new THREE.Points(geo, mat), geo, mat };
+    }
+
+    const starPalette = [
+      new THREE.Color(0xffffff),
+      new THREE.Color(0xbae6fd),
+      new THREE.Color(0xfef08a),
+      new THREE.Color(0xfed7aa),
+      new THREE.Color(0xe9d5ff)
+    ];
+
+    // Background pinpoint stars (2400 soft circular stars)
+    const bgStars = createStarLayer(2400, 75000, 140000, 650, softStarTex, starPalette);
+    spaceGroup.add(bgStars.points);
+
+    // Bright hero stars with JWST diffraction spikes (180 bright stars)
+    const heroStars = createStarLayer(180, 60000, 110000, 1900, spikeStarTex, starPalette);
+    spaceGroup.add(heroStars.points);
+
+    // D) 3D Corridor Space Dust & Streaming Stars (Gives true 3D speed & depth as you fly!)
+    const corridorStarCount = 700;
+    const corridorPositions = new Float32Array(corridorStarCount * 3);
+    const corridorColors = new Float32Array(corridorStarCount * 3);
+    for (let i = 0; i < corridorStarCount; i++) {
+      corridorPositions[i * 3] = (Math.random() - 0.5) * 14000;
+      corridorPositions[i * 3 + 1] = 3000 + Math.random() * (WORLD.MOON_ALTITUDE + 4000);
+      corridorPositions[i * 3 + 2] = (Math.random() - 0.5) * 16000;
+      const c = starPalette[i % starPalette.length];
+      corridorColors[i * 3] = c.r;
+      corridorColors[i * 3 + 1] = c.g;
+      corridorColors[i * 3 + 2] = c.b;
+    }
+    const corridorGeo = new THREE.BufferGeometry();
+    corridorGeo.setAttribute('position', new THREE.BufferAttribute(corridorPositions, 3));
+    corridorGeo.setAttribute('color', new THREE.BufferAttribute(corridorColors, 3));
+    const corridorMat = new THREE.PointsMaterial({
+      size: 95,
+      map: softStarTex,
       vertexColors: true,
       transparent: true,
       opacity: 0.0,
       depthWrite: false,
       blending: THREE.AdditiveBlending
     });
-    const starPoints = new THREE.Points(starGeo, starMat);
-    spaceGroup.add(starPoints);
-    scene.add(spaceGroup);
+    const corridorStars = new THREE.Points(corridorGeo, corridorMat);
+    scene.add(corridorStars);
+
+    // E) Shooting Stars / Comets streaking through deep space
+    const cometGroup = new THREE.Group();
+    const comets = [];
+    const cometGeo = new THREE.CylinderGeometry(0.5, 18, 650, 8);
+    cometGeo.rotateX(Math.PI / 2);
+    for (let i = 0; i < 6; i++) {
+      const cMat = new THREE.MeshBasicMaterial({
+        color: i % 2 === 0 ? 0x7dd3fc : 0xfde047,
+        transparent: true,
+        opacity: 0.0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const mesh = new THREE.Mesh(cometGeo, cMat);
+      mesh.position.set(
+        (Math.random() - 0.5) * 16000,
+        8000 + i * 5000,
+        -2500 - Math.random() * 8000
+      );
+      cometGroup.add(mesh);
+      comets.push({
+        mesh,
+        mat: cMat,
+        vel: new THREE.Vector3(-450 - Math.random() * 400, 120, -180)
+      });
+    }
+    scene.add(cometGroup);
 
     // ============================================================================
-    // 4. AI EARTH GLOBE + FRESNEL ATMOSPHERE SHADER + AI COASTAL SPACEPORT
+    // 4. EARTH, PLANETARY AURORA CURTAIN, AND ISS ORBITAL STATION
     // ============================================================================
-    const earthTex = texLoader.load('assets/earth.jpg');
+    const earthTex = loadCrispTexture('assets/earth.jpg');
     const earthMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(WORLD.EARTH_RADIUS, 48, 36),
+      new THREE.SphereGeometry(WORLD.EARTH_RADIUS, 64, 48),
       new THREE.MeshPhongMaterial({
         map: earthTex,
-        specular: new THREE.Color(0x1e3a5f),
-        shininess: 18
+        specular: new THREE.Color(0x254875),
+        shininess: 22
       })
     );
     earthMesh.position.set(0, -WORLD.EARTH_RADIUS, 0);
-    // Rotate Earth so lush continent/coastline is right below the launch site
     earthMesh.rotation.z = 0.45;
     earthMesh.rotation.x = 0.35;
     scene.add(earthMesh);
 
-    // Custom GLSL Rayleigh Atmosphere Fresnel Rim Glow (Costs ~0.01ms GPU!)
+    // Rayleigh Blue Atmosphere Halo Shader
     const atmosShaderMat = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
@@ -674,8 +847,8 @@
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.8);
-          gl_FragColor = vec4(0.22, 0.68, 1.0, 1.0) * intensity * 1.35;
+          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.6);
+          gl_FragColor = vec4(0.24, 0.72, 1.0, 1.0) * intensity * 1.45;
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -684,14 +857,99 @@
       depthWrite: false
     });
     const earthAtmosHalo = new THREE.Mesh(
-      new THREE.SphereGeometry(WORLD.EARTH_RADIUS * 1.035, 40, 30),
+      new THREE.SphereGeometry(WORLD.EARTH_RADIUS * 1.038, 48, 36),
       atmosShaderMat
     );
     earthAtmosHalo.position.copy(earthMesh.position);
     scene.add(earthAtmosHalo);
 
-    // AI Satellite Spaceport Ground Terrain Patch around Launch Pad
-    const launchTerrainTex = texLoader.load('assets/launch_terrain.jpg');
+    // Planetary Aurora Borealis Shimmering Curtain in Low Earth Orbit (Altitude ~80-140km)
+    const auroraShaderMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uOpacity: { value: 0 }
+      },
+      vertexShader: `
+        uniform float uTime;
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          vec3 p = position;
+          p.x += sin(uv.x * 18.0 + uTime * 1.4) * 180.0;
+          p.z += cos(uv.x * 14.0 - uTime * 1.1) * 180.0;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          float curtain = sin(vUv.x * 32.0 + uTime * 2.0) * 0.25 + 0.75;
+          float vertFade = sin(vUv.y * 3.14159) * pow(1.0 - vUv.y, 0.7);
+          float edgeFade = sin(vUv.x * 3.14159);
+          vec3 emerald = vec3(0.1, 0.95, 0.65);
+          vec3 violet = vec3(0.55, 0.25, 0.98);
+          vec3 col = mix(emerald, violet, vUv.y);
+          gl_FragColor = vec4(col, curtain * vertFade * edgeFade * uOpacity * 0.68);
+        }
+      `,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+    const auroraMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(8500, 9200, 2600, 64, 8, true, Math.PI * 0.55, Math.PI * 0.9),
+      auroraShaderMat
+    );
+    auroraMesh.position.set(0, 7800, -4500);
+    scene.add(auroraMesh);
+
+    // International Space Station (ISS / Orbital Gateway) in Low Earth Orbit!
+    const issGroup = new THREE.Group();
+    const issTrussMat = new THREE.MeshPhongMaterial({ color: 0xe2e8f0, shininess: 90 });
+    const issSolarMat = new THREE.MeshPhongMaterial({
+      color: 0xd97706,
+      emissive: 0x451a03,
+      shininess: 120,
+      side: THREE.DoubleSide
+    });
+    const issModuleMat = new THREE.MeshPhongMaterial({ color: 0xcbd5e1, shininess: 70 });
+
+    // Main Integrated Truss
+    const mainTruss = new THREE.Mesh(new THREE.BoxGeometry(260, 6, 6), issTrussMat);
+    issGroup.add(mainTruss);
+    // Pressurized Habitat Modules
+    const habCenter = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 95, 16), issModuleMat);
+    habCenter.rotation.x = Math.PI / 2;
+    issGroup.add(habCenter);
+    const habCross = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 55, 16), issModuleMat);
+    issGroup.add(habCross);
+    // 8 Giant Golden Solar Array Wings
+    [-105, -75, 75, 105].forEach((xPos) => {
+      const panelTop = new THREE.Mesh(new THREE.BoxGeometry(18, 1.2, 85), issSolarMat);
+      panelTop.position.set(xPos, 0, 52);
+      issGroup.add(panelTop);
+      const panelBot = new THREE.Mesh(new THREE.BoxGeometry(18, 1.2, 85), issSolarMat);
+      panelBot.position.set(xPos, 0, -52);
+      issGroup.add(panelBot);
+    });
+    // Navigation Beacon Light Sprite on ISS
+    const issBeacon = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: spikeStarTex,
+      color: 0x38bdf8,
+      blending: THREE.AdditiveBlending
+    }));
+    issBeacon.scale.set(160, 160, 1);
+    issGroup.add(issBeacon);
+
+    issGroup.position.set(220, 10500, -1450);
+    issGroup.rotation.set(0.25, -0.4, 0.12);
+    scene.add(issGroup);
+
+    // Coastal Spaceport Ground Terrain Patch
+    const launchTerrainTex = loadCrispTexture('assets/launch_terrain.jpg');
     const groundPatch = new THREE.Mesh(
       new THREE.CircleGeometry(2800, 48),
       new THREE.MeshLambertMaterial({ map: launchTerrainTex })
@@ -700,7 +958,7 @@
     groundPatch.position.y = 0.5;
     scene.add(groundPatch);
 
-    // 3D Launch Complex Structures at Center of Pad
+    // 3D Launch Complex Structures
     const launchPadGroup = new THREE.Group();
     const towerMat = new THREE.MeshLambertMaterial({ color: 0x475569 });
     const tankMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
@@ -727,7 +985,7 @@
 
     scene.add(launchPadGroup);
 
-    // Soft Cloud Billboards at ~11 km Altitude
+    // Cloud Deck at ~10.5 km
     const cloudCanvas = document.createElement('canvas');
     cloudCanvas.width = 128;
     cloudCanvas.height = 128;
@@ -744,14 +1002,14 @@
     const cloudMat = new THREE.MeshBasicMaterial({
       map: cloudSpriteTex,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.72,
       side: THREE.DoubleSide,
       depthWrite: false
     });
     const cloudPlane = new THREE.PlaneGeometry(1400, 1400);
-    for (let i = 0; i < 42; i++) {
+    for (let i = 0; i < 38; i++) {
       const m = new THREE.Mesh(cloudPlane, cloudMat);
-      const angle = (i / 42) * Math.PI * 2;
+      const angle = (i / 38) * Math.PI * 2;
       const rad = 350 + (i % 7) * 850;
       m.position.set(
         Math.cos(angle) * rad,
@@ -765,29 +1023,28 @@
     scene.add(cloudGroup);
 
     // ============================================================================
-    // 5. AI MOON WITH BUMP-MAPPED 3D CRATER RELIEF
+    // 5. HIGH-DEFINITION AI MOON WITH BUMP-MAPPED CRATERS & ORBITAL RING
     // ============================================================================
-    const moonTex = texLoader.load('assets/moon.jpg');
+    const moonTex = loadCrispTexture('assets/moon.jpg');
     const moonMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(WORLD.MOON_RADIUS, 48, 36),
+      new THREE.SphereGeometry(WORLD.MOON_RADIUS, 64, 48),
       new THREE.MeshPhongMaterial({
         map: moonTex,
         bumpMap: moonTex,
-        bumpScale: 22.0,
-        specular: new THREE.Color(0x111111),
-        shininess: 4
+        bumpScale: 28.0,
+        specular: new THREE.Color(0x18181b),
+        shininess: 6
       })
     );
-    moonMesh.position.set(0, WORLD.MOON_ALTITUDE, -8200);
+    moonMesh.position.set(0, WORLD.MOON_ALTITUDE, -7500);
     scene.add(moonMesh);
 
-    // Soft Lunar Rim Halo
     const moonHalo = new THREE.Mesh(
-      new THREE.SphereGeometry(WORLD.MOON_RADIUS * 1.028, 32, 24),
+      new THREE.SphereGeometry(WORLD.MOON_RADIUS * 1.035, 40, 32),
       new THREE.MeshBasicMaterial({
-        color: 0xe2e8f0,
+        color: 0xbae6fd,
         transparent: true,
-        opacity: 0.14,
+        opacity: 0.16,
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending
       })
@@ -795,27 +1052,55 @@
     moonHalo.position.copy(moonMesh.position);
     scene.add(moonHalo);
 
+    // Subtle Futuristic Lunar Orbital Navigation Ring
+    const lunarRing = new THREE.Mesh(
+      new THREE.RingGeometry(WORLD.MOON_RADIUS * 1.28, WORLD.MOON_RADIUS * 1.30, 96),
+      new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.25,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      })
+    );
+    lunarRing.position.copy(moonMesh.position);
+    lunarRing.rotation.x = Math.PI * 0.42;
+    lunarRing.rotation.y = 0.22;
+    scene.add(lunarRing);
+
+    // Sun Anamorphic Cinema Flare
+    const sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: spikeStarTex,
+      color: 0xfffbeb,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    }));
+    sunSprite.scale.set(22000, 22000, 1);
+    sunSprite.position.copy(sunLight.position);
+    scene.add(sunSprite);
+
     // ============================================================================
     // 6. 3D ROCKET SPACECRAFT (For External Cinematic View)
     // ============================================================================
     const rocketGroup = new THREE.Group();
-    const bodyMat = new THREE.MeshPhongMaterial({ color: 0xf8fafc, shininess: 80 });
-    const accentMat = new THREE.MeshPhongMaterial({ color: 0xdc2626, shininess: 40 });
-    const darkMetalMat = new THREE.MeshPhongMaterial({ color: 0x1e293b, shininess: 60 });
-    const glassMat = new THREE.MeshPhongMaterial({ color: 0x38bdf8, shininess: 120 });
+    const bodyMat = new THREE.MeshPhongMaterial({ color: 0xf8fafc, shininess: 90 });
+    const accentMat = new THREE.MeshPhongMaterial({ color: 0xdc2626, shininess: 50 });
+    const darkMetalMat = new THREE.MeshPhongMaterial({ color: 0x1e293b, shininess: 70 });
+    const glassMat = new THREE.MeshPhongMaterial({ color: 0x38bdf8, shininess: 130 });
 
-    const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.75, 12.5, 20), bodyMat);
+    const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.75, 12.5, 24), bodyMat);
     rocketGroup.add(fuselage);
 
-    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(1.54, 1.58, 1.7, 20), accentMat);
+    const stripe = new THREE.Mesh(new THREE.CylinderGeometry(1.54, 1.58, 1.7, 24), accentMat);
     stripe.position.y = 2.4;
     rocketGroup.add(stripe);
 
-    const noseCone = new THREE.Mesh(new THREE.ConeGeometry(1.5, 4.8, 20), bodyMat);
+    const noseCone = new THREE.Mesh(new THREE.ConeGeometry(1.5, 4.8, 24), bodyMat);
     noseCone.position.y = 8.65;
     rocketGroup.add(noseCone);
 
-    const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.9, 14, 14), glassMat);
+    const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.9, 16, 16), glassMat);
     canopy.scale.set(0.82, 1.55, 0.72);
     canopy.position.set(0, 4.6, -1.18);
     rocketGroup.add(canopy);
@@ -828,13 +1113,12 @@
       rocketGroup.add(fin);
     }
 
-    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.4, 2.0, 16), darkMetalMat);
+    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.4, 2.0, 18), darkMetalMat);
     nozzle.position.y = -7.0;
     rocketGroup.add(nozzle);
 
-    // Additive Thruster Glow Plume
     const plumeOuter = new THREE.Mesh(
-      new THREE.ConeGeometry(1.35, 8.5, 14),
+      new THREE.ConeGeometry(1.35, 8.5, 16),
       new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending })
     );
     plumeOuter.rotation.x = Math.PI;
@@ -842,7 +1126,7 @@
     rocketGroup.add(plumeOuter);
 
     const plumeInner = new THREE.Mesh(
-      new THREE.ConeGeometry(0.75, 5.0, 12),
+      new THREE.ConeGeometry(0.75, 5.0, 14),
       new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending })
     );
     plumeInner.rotation.x = Math.PI;
@@ -852,7 +1136,7 @@
     scene.add(rocketGroup);
 
     // ============================================================================
-    // QUALITY PRESETS & AUTO-FPS OPTIMIZER
+    // QUALITY PRESETS (Defaults to High-DPI Anti-Aliased Crisp Mode!)
     // ============================================================================
     function setQuality(mode) {
       qualityMode = mode;
@@ -861,23 +1145,23 @@
       document.getElementById('q-high').classList.toggle('active', mode === 'high');
 
       if (mode === 'low') {
-        renderer.setPixelRatio(0.75);
+        renderer.setPixelRatio(1.0);
         cloudGroup.visible = false;
-        starGeo.setDrawRange(0, 400);
+        bgStars.geo.setDrawRange(0, 800);
       } else if (mode === 'medium') {
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
         cloudGroup.visible = true;
-        starGeo.setDrawRange(0, 900);
+        bgStars.geo.setDrawRange(0, 1600);
       } else {
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.85));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2.0));
         cloudGroup.visible = true;
-        starGeo.setDrawRange(0, starCount);
+        bgStars.geo.setDrawRange(0, 2400);
       }
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     // ============================================================================
-    // CAMERA VIEW SWITCHING
+    // CAMERA VIEW SWITCHING & WARP SPOTS
     // ============================================================================
     const VIEW_NAMES = [
       'AIフォトリアル操縦席 (PILOT)',
@@ -921,15 +1205,23 @@
       document.getElementById('help-panel').classList.toggle('hidden', !showHelp);
     }
 
+    function warpToDeepSpace() {
+      // Jump directly to the Deep Space Nebula & Galaxy Corridor (180 km altitude)
+      tourTime = TOUR_DURATION * 0.48;
+      if (!isAutoCruise) toggleCruise();
+      lookYawOffset = 0;
+      lookPitchOffset = 0;
+    }
+
     function warpToMoon() {
       isAutoCruise = false;
       document.getElementById('mode-badge').textContent = '🕹️ マニュアル操縦 (月軌道)';
       document.getElementById('mode-badge').className = 'badge badge-cyan';
       document.getElementById('tour-banner').style.display = 'none';
       document.getElementById('btn-cruise').classList.remove('active');
-      shipPos.set(0, WORLD.MOON_ALTITUDE - 900, -3900);
+      shipPos.set(0, WORLD.MOON_ALTITUDE - 750, -3200);
       shipYaw = 0;
-      shipPitch = 0.18;
+      shipPitch = 0.16;
       currentSpeed = 140;
       lookYawOffset = 0;
       lookPitchOffset = 0;
@@ -939,7 +1231,7 @@
       tourTime = 0;
       shipPos.set(0, 18, 0);
       shipYaw = 0;
-      shipPitch = 0.12;
+      shipPitch = 0.14;
       shipRoll = 0;
       currentSpeed = 0;
       lookYawOffset = 0;
@@ -957,6 +1249,7 @@
       if (k === 'c' || k === 'f') toggleCruise();
       else if (k === 'v') cycleCameraView();
       else if (k === 'h') toggleHelp();
+      else if (k === 'u') warpToDeepSpace();
       else if (k === 'j') warpToMoon();
       else if (k === 'r') resetToLaunchPad();
       else if (k === '1') setQuality('low');
@@ -1001,34 +1294,34 @@
       const p = tourTime / TOUR_DURATION;
 
       const ease = 0.5 - 0.5 * Math.cos(Math.min(p * 1.12, 1.0) * Math.PI);
-      const targetY = 18 + ease * (WORLD.MOON_ALTITUDE - 1200);
-      const targetZ = -ease * 4800;
-      const targetX = Math.sin(p * Math.PI * 2) * 750 * ease;
+      const targetY = 18 + ease * (WORLD.MOON_ALTITUDE - 900);
+      const targetZ = -ease * 3800;
+      const targetX = Math.sin(p * Math.PI * 2) * 520 * ease;
 
       const prevPos = shipPos.clone();
       shipPos.set(targetX, targetY, targetZ);
       currentSpeed = shipPos.distanceTo(prevPos) / Math.max(dt, 0.001);
 
-      shipPitch = 0.30 * (1.0 - ease * 0.65);
-      shipYaw = Math.cos(p * Math.PI * 2) * 0.14;
+      shipPitch = 0.28 * (1.0 - ease * 0.65);
+      shipYaw = Math.cos(p * Math.PI * 2) * 0.12;
 
       let phaseName = '';
-      if (p < 0.12) {
+      if (p < 0.10) {
         phaseName = 'PHASE 1 — ケネディ宇宙基地リフトオフ (LAUNCH)';
-      } else if (p < 0.26) {
-        phaseName = 'PHASE 2 — 雲海突破・青い地球の弧 (CLOUD BREAKTHROUGH)';
-      } else if (p < 0.42) {
-        phaseName = 'PHASE 3 — 成層圏・窓ガラスの氷結 (STRATOSPHERE FROST)';
-      } else if (p < 0.65) {
-        phaseName = 'PHASE 4 — 宇宙空間・天の川銀河パノラマ (MILKY WAY GALAXY)';
+      } else if (p < 0.22) {
+        phaseName = 'PHASE 2 — 雲海突破・成層圏の氷結 (STRATOSPHERE)';
+      } else if (p < 0.36) {
+        phaseName = 'PHASE 3 — オーロラ帯＆国際宇宙ステーション通過 (ISS & AURORA)';
+      } else if (p < 0.64) {
+        phaseName = 'PHASE 4 — 大星雲・アンドロメダ渦巻銀河・天の川回廊 (DEEP SPACE NEBULAE)';
       } else if (p < 0.86) {
-        phaseName = 'PHASE 5 — 月面クレーター接近フライト (LUNAR CRATER APPROACH)';
+        phaseName = 'PHASE 5 — 月面クレーター＆軌道リング接近 (LUNAR APPROACH)';
       } else {
-        phaseName = 'PHASE 6 — 月周回軌道・地球の出 (EARTHRISE IN DEEP SPACE)';
+        phaseName = 'PHASE 6 — 月周回・地球の出と大星雲 (EARTHRISE & COSMOS)';
       }
 
       document.getElementById('tour-phase-text').textContent = `☕ 自動遊覧ツアー: ${phaseName}`;
-      document.getElementById('tour-progress-text').textContent = `${Math.round(p * 100)}% (C / F キーで手動操縦へ切替)`;
+      document.getElementById('tour-progress-text').textContent = `${Math.round(p * 100)}% (U:星雲へ / J:月へ / C:手動操縦)`;
       document.getElementById('tour-progress-bar').style.width = `${(p * 100).toFixed(1)}%`;
     }
 
@@ -1037,7 +1330,7 @@
     // ============================================================================
     function updateManualFlight(dt) {
       const boost = keys['shift'] ? 3.6 : 1.0;
-      const baseThrust = 1500 * boost;
+      const baseThrust = 1550 * boost;
 
       if (keys['a'] || keys['arrowleft']) shipYaw += 1.1 * dt;
       if (keys['d'] || keys['arrowright']) shipYaw -= 1.1 * dt;
@@ -1050,7 +1343,7 @@
 
       if (keys['w'] || keys['arrowup']) shipVel.addScaledVector(forward, baseThrust * dt);
       if (keys['s'] || keys['arrowdown']) shipVel.addScaledVector(forward, -baseThrust * 0.7 * dt);
-      if (keys[' '] || keys['e']) shipVel.y += baseThrust * 1.4 * dt;
+      if (keys[' '] || keys['e']) shipVel.y += baseThrust * 1.45 * dt;
       if (keys['control'] || keys['q']) shipVel.y -= baseThrust * 1.1 * dt;
 
       shipVel.multiplyScalar(Math.pow(0.92, dt * 60));
@@ -1063,36 +1356,57 @@
     }
 
     // ============================================================================
-    // ENVIRONMENT, SKYBOX BLENDING & COCKPIT PARALLAX
+    // ENVIRONMENT, MULTI-LAYER COSMOS & COCKPIT PARALLAX
     // ============================================================================
-    const skyColorGround = new THREE.Color(0x3882e8);
-    const skyColorStrato = new THREE.Color(0x091938);
+    const skyColorGround = new THREE.Color(0x2b6cb0);
+    const skyColorStrato = new THREE.Color(0x061229);
     const skyColorSpace = new THREE.Color(0x010206);
 
-    function updateEnvironmentAndHUD(timeSec) {
+    function updateEnvironmentAndHUD(timeSec, dt) {
       const altKm = Math.max(0, (shipPos.y - 18) / 100.0);
       const atmosFactor = Math.max(0, Math.min(1, 1.0 - shipPos.y / WORLD.ATMOS_TOP));
 
-      if (atmosFactor > 0.42) {
-        const t = (atmosFactor - 0.42) / 0.58;
+      if (atmosFactor > 0.40) {
+        const t = (atmosFactor - 0.40) / 0.60;
         scene.background.lerpColors(skyColorStrato, skyColorGround, t);
       } else {
-        const t = atmosFactor / 0.42;
+        const t = atmosFactor / 0.40;
         scene.background.lerpColors(skyColorSpace, skyColorStrato, t);
       }
       scene.fog.color.copy(scene.background);
-      scene.fog.density = 0.00012 * atmosFactor * atmosFactor;
+      scene.fog.density = 0.00010 * atmosFactor * atmosFactor;
 
-      // Fade in AI Milky Way Skybox & Foreground Stars as we ascend above clouds
-      const spaceVis = Math.pow(1.0 - atmosFactor, 1.15);
-      skyboxMat.opacity = spaceVis;
-      starMat.opacity = spaceVis * 0.9;
+      // Fade in Multi-Layer AI Nebulae, Galaxies, Milky Way, and Crisp Starfields
+      const spaceVis = Math.pow(1.0 - atmosFactor, 0.85);
+      spaceFadeMaterials.forEach((m) => { m.uniforms.uOpacity.value = spaceVis; });
+      bgStars.mat.opacity = spaceVis * 0.95;
+      heroStars.mat.opacity = spaceVis;
+      corridorMat.opacity = spaceVis * 0.85;
       spaceGroup.position.copy(shipPos);
+
+      // Update Planetary Aurora Shader
+      auroraShaderMat.uniforms.uTime.value = timeSec;
+      auroraShaderMat.uniforms.uOpacity.value = spaceVis;
+
+      // Animate Shooting Stars / Comets in Deep Space
+      comets.forEach((c) => {
+        c.mat.opacity = spaceVis * 0.75;
+        c.mesh.position.addScaledVector(c.vel, dt);
+        if (c.mesh.position.x < -10000) {
+          c.mesh.position.x = 10000;
+          c.mesh.position.y = Math.max(8000, shipPos.y + (Math.random() - 0.2) * 8000);
+          c.mesh.position.z = shipPos.z - 2500 - Math.random() * 6000;
+        }
+      });
+
+      // Slowly rotate ISS & Lunar Ring
+      issGroup.rotation.y += dt * 0.05;
+      lunarRing.rotation.z += dt * 0.08;
 
       // Subtle cockpit vibration & head-turn parallax
       if (cameraViewIndex === 0) {
-        const vibX = Math.sin(timeSec * 37) * (currentSpeed > 50 ? 1.2 : 0.2);
-        const vibY = Math.cos(timeSec * 43) * (currentSpeed > 50 ? 1.2 : 0.2);
+        const vibX = Math.sin(timeSec * 37) * (currentSpeed > 60 ? 0.9 : 0.15);
+        const vibY = Math.cos(timeSec * 43) * (currentSpeed > 60 ? 0.9 : 0.15);
         const parX = THREE.MathUtils.clamp(lookYawOffset * 28, -22, 22) + vibX;
         const parY = THREE.MathUtils.clamp(-lookPitchOffset * 22, -18, 18) + vibY;
         cockpitCanvas.style.transform = `translate(${parX.toFixed(1)}px, ${parY.toFixed(1)}px)`;
@@ -1103,7 +1417,7 @@
       if (shipPos.y > WORLD.STRATO_START && shipPos.y < WORLD.STRATO_END) {
         const mid = (WORLD.STRATO_START + WORLD.STRATO_END) * 0.5;
         const half = (WORLD.STRATO_END - WORLD.STRATO_START) * 0.5;
-        frostAlpha = (1.0 - Math.abs(shipPos.y - mid) / half) * 0.32;
+        frostAlpha = (1.0 - Math.abs(shipPos.y - mid) / half) * 0.28;
       }
       document.documentElement.style.setProperty('--frost-alpha', frostAlpha.toFixed(3));
 
@@ -1125,21 +1439,17 @@
       );
 
       if (cameraViewIndex === 0) {
-        // AI Photorealistic Cockpit View: offset look slightly upward so window center frames the scene
         camera.position.copy(shipPos).add(new THREE.Vector3(0, 3.8, 0));
         const target = camera.position.clone().add(lookDir.multiplyScalar(120));
-        target.y -= 18; // Shifts 3D horizon into the upper panoramic windshield
+        target.y -= 16;
         camera.lookAt(target);
       } else if (cameraViewIndex === 1) {
-        // Observation Deck Window (looking down at Earth & horizon)
         camera.position.copy(shipPos).add(new THREE.Vector3(2.5, 2.0, 0));
-        camera.lookAt(shipPos.x + 90 * Math.sin(lookYawOffset), shipPos.y - 65 + lookPitchOffset * 70, shipPos.z - 90);
+        camera.lookAt(shipPos.x + 90 * Math.sin(lookYawOffset), shipPos.y - 55 + lookPitchOffset * 70, shipPos.z - 90);
       } else if (cameraViewIndex === 2) {
-        // Cupola Dome View (looking up at Milky Way & Moon)
         camera.position.copy(shipPos).add(new THREE.Vector3(0, 6.0, 0));
         camera.lookAt(moonMesh.position.x + lookYawOffset * 5000, moonMesh.position.y, moonMesh.position.z + lookPitchOffset * 5000);
       } else {
-        // External Cinematic View
         const camOffset = new THREE.Vector3(
           Math.sin(totalYaw + 0.38) * 26,
           7 - Math.sin(totalPitch) * 10,
@@ -1159,12 +1469,12 @@
       document.getElementById('tel-moon').textContent = `${moonDistKm.toFixed(1)} km`;
 
       const envEl = document.getElementById('tel-env');
-      if (altKm > 75) {
-        envEl.textContent = '🌌 宇宙空間 (天の川銀河パノラマ・真空)';
-      } else if (altKm > 45) {
-        envEl.textContent = '✨ 中間圏 (大気リム発光・星々の出現)';
-      } else if (altKm > 15) {
-        envEl.textContent = '❄️ 成層圏 (窓ガラスに氷結の結晶)';
+      if (altKm > 150) {
+        envEl.textContent = '🌌 深宇宙 (創世の柱星雲・渦巻銀河・天の川)';
+      } else if (altKm > 65) {
+        envEl.textContent = '🛰️ 低軌道宇宙 (オーロラ帯・ISS宇宙ステーション)';
+      } else if (altKm > 14) {
+        envEl.textContent = '❄️ 成層圏 (窓ガラス氷結・群青の地球弧)';
       } else {
         envEl.textContent = '🌍 沿岸宇宙基地・対流圏 (青空と雲海)';
       }
@@ -1187,8 +1497,8 @@
       if (fpsAccum >= 0.75) {
         const fps = Math.round(frameCount / fpsAccum);
         document.getElementById('fps-badge').textContent = `${fps} FPS`;
-        if (fps < 38 && qualityMode === 'high') setQuality('medium');
-        else if (fps < 30 && qualityMode === 'medium') setQuality('low');
+        if (fps < 32 && qualityMode === 'high') setQuality('medium');
+        else if (fps < 24 && qualityMode === 'medium') setQuality('low');
         frameCount = 0;
         fpsAccum = 0;
       }
@@ -1202,10 +1512,11 @@
       moonMesh.rotation.y += dt * 0.012;
       earthMesh.rotation.y += dt * 0.005;
 
-      updateEnvironmentAndHUD(now * 0.001);
+      updateEnvironmentAndHUD(now * 0.001, dt);
       renderer.render(scene, camera);
     }
 
+    setQuality('high');
     setCameraView(0);
     requestAnimationFrame(animate);
   </script>
